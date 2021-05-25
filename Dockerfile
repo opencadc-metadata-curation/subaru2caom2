@@ -24,6 +24,6 @@ ARG OPENCADC_BRANCH=master
 
 RUN pip install git+https://github.com/${OPENCADC_REPO}/caom2pipe@${OPENCADC_BRANCH}#egg=caom2pipe
   
-RUN pip install git+https://github.com/${OPENCADC_REPO}/blank2caom2@${OPENCADC_BRANCH}#egg=blank2caom2
+RUN pip install git+https://github.com/${OPENCADC_REPO}/subaru2caom2@${OPENCADC_BRANCH}#egg=subaru2caom2
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

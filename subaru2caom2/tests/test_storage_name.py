@@ -3,7 +3,7 @@
 # ******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
 # *************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
 #
-#  (c) 2019.                            (c) 2019.
+#  (c) 2021.                            (c) 2021.
 #  Government of Canada                 Gouvernement du Canada
 #  National Research Council            Conseil national de recherches
 #  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -66,67 +66,20 @@
 #
 # ***********************************************************************
 #
-
-from mock import patch
-
-from blank2caom2 import main_app, APPLICATION, COLLECTION, BlankName
-from blank2caom2 import ARCHIVE
-from caom2pipe import manage_composable as mc
-
-import glob
-import os
-import sys
-
-THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
-PLUGIN = os.path.join(os.path.dirname(THIS_DIR), 'main_app.py')
+from subaru2caom2 import SubaruName
 
 
-def pytest_generate_tests(metafunc):
-    obs_id_list = glob.glob(f'{TEST_DATA_DIR}/*.fits.header')
-    metafunc.parametrize('test_name', obs_id_list)
+def test_is_valid():
+    assert SubaruName('anything').is_valid()
 
 
-@patch('caom2utils.fits2caom2.CadcDataClient')
-def test_main_app(data_client_mock, test_name):
-    basename = os.path.basename(test_name)
-    extension = '.fz'
-    file_name = basename.replace('.header', extension)
-    blank_name = BlankName(file_name=file_name)
-    obs_path = f'{TEST_DATA_DIR}/{blank_name.obs_id}.expected.xml'
-    output_file = f'{TEST_DATA_DIR}/{basename}.actual.xml'
-
-    if os.path.exists(output_file):
-        os.unlink(output_file)
-
-    local = _get_local(basename)
-
-    data_client_mock.return_value.get_file_info.side_effect = _get_file_info
-
-    sys.argv = (
-        f'{APPLICATION} --no_validate '
-        f'--local {local} --observation {COLLECTION} {blank_name.obs_id} -o '
-        f'{output_file} --plugin {PLUGIN} --module {PLUGIN} --lineage '
-        f'{blank_name.lineage}'
-    ).split()
-    print(sys.argv)
-    try:
-        main_app.to_caom2()
-    except Exception as e:
-        import logging
-        import traceback
-        logging.error(traceback.format_exc())
-
-    compare_result = mc.compare_observations(output_file, obs_path)
-    if compare_result is not None:
-        raise AssertionError(compare_result)
-    # assert False  # cause I want to see logging messages
-
-
-def _get_file_info(archive, file_id):
-    return {'type': 'application/fits'}
-
-
-def _get_local(obs_id):
-    return f'{TEST_DATA_DIR}/{obs_id}.fits.header'
-
+def test_storage_name():
+    test_obs_id = 'SCLA_189.232+62.201'
+    test_f_id = f'{test_obs_id}.W-C-IC'
+    test_f_name = f'{test_f_id}.fits'
+    test_subject = SubaruName(file_name=test_f_name)
+    assert test_subject.obs_id == test_obs_id, 'wrong obs id'
+    assert test_subject.product_id == test_f_id, 'wrong product id'
+    assert (
+        test_subject.lineage == f'{test_f_id}/cadc:SUBARUPROC/{test_f_name}'
+    ), 'wrong lineage'

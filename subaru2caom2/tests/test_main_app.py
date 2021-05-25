@@ -3,7 +3,7 @@
 # ******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
 # *************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
 #
-#  (c) 2019.                            (c) 2019.
+#  (c) 2021.                            (c) 2021.
 #  Government of Canada                 Gouvernement du Canada
 #  National Research Council            Conseil national de recherches
 #  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -67,80 +67,63 @@
 # ***********************************************************************
 #
 
-"""
-Implements the default entry point functions for the workflow 
-application.
+from mock import patch
 
-'run' executes based on either provided lists of work, or files on disk.
-'run_by_state' executes incrementally, usually based on time-boxed 
-intervals.
-"""
+from subaru2caom2 import main_app, APPLICATION, COLLECTION, SubaruName
+from subaru2caom2 import ARCHIVE
+from caom2pipe import manage_composable as mc
 
-import logging
+import glob
+import os
 import sys
-import traceback
 
-from caom2pipe import run_composable as rc
-from blank2caom2 import APPLICATION, BlankName
-
-
-META_VISITORS = []
-DATA_VISITORS = []
+THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
+PLUGIN = os.path.join(os.path.dirname(THIS_DIR), 'main_app.py')
 
 
-def _run():
-    """
-    Uses a todo file to identify the work to be done.
-
-    :return 0 if successful, -1 if there's any sort of failure. Return status
-        is used by airflow for task instance management and reporting.
-    """
-    return rc.run_by_todo(
-        config=None, 
-        name_builder=None, 
-        command_name=APPLICATION,
-        meta_visitors=META_VISITORS, 
-        data_visitors=DATA_VISITORS, 
-        chooser=None,
-    )
+def pytest_generate_tests(metafunc):
+    obs_id_list = glob.glob(f'{TEST_DATA_DIR}/derived/*.header')
+    metafunc.parametrize('test_name', obs_id_list)
 
 
-def run():
-    """Wraps _run in exception handling, with sys.exit calls."""
+@patch('caom2utils.fits2caom2.CadcDataClient')
+def test_main_app(data_client_mock, test_name):
+    basename = os.path.basename(test_name)
+    subaru_name = SubaruName(file_name=basename.replace('.header', ''))
+    obs_path = f'{TEST_DATA_DIR}/derived/{subaru_name.obs_id}.expected.xml'
+    output_file = f'{TEST_DATA_DIR}/derived/{subaru_name.obs_id}.actual.xml'
+
+    if os.path.exists(output_file):
+        os.unlink(output_file)
+
+    local = _get_local(subaru_name.file_name)
+
+    data_client_mock.return_value.get_file_info.side_effect = _get_file_info
+
+    sys.argv = (
+        f'{APPLICATION} --no_validate '
+        f'--local {local} --observation {COLLECTION} {subaru_name.obs_id} -o '
+        f'{output_file} --plugin {PLUGIN} --module {PLUGIN} --lineage '
+        f'{subaru_name.lineage}'
+     ).split()
+    print(sys.argv)
     try:
-        result = _run()
-        sys.exit(result)
+        main_app.to_caom2()
     except Exception as e:
-        logging.error(e)
-        tb = traceback.format_exc()
-        logging.debug(tb)
-        sys.exit(-1)
+        import logging
+        import traceback
+        logging.error(traceback.format_exc())
+
+    compare_result = mc.compare_observations(output_file, obs_path)
+    if compare_result is not None:
+        raise AssertionError(compare_result)
+    # assert False  # cause I want to see logging messages
 
 
-def _run_state():
-    """Uses a state file with a timestamp to control which entries will be
-    processed.
-    """
-    return rc.run_by_state_ts(
-        config=None, 
-        name_builder=None,
-        command_name=APPLICATION, 
-        bookmark_name=None, 
-        meta_visitors=META_VISITORS,
-        data_visitors=DATA_VISITORS, 
-        end_time=None,
-        source=None, 
-        chooser=None,
-    )
+def _get_file_info(archive, file_id):
+    return {'type': 'application/fits'}
 
 
-def run_state():
-    """Wraps _run_state in exception handling."""
-    try:
-        _run_state()
-        sys.exit(0)
-    except Exception as e:
-        logging.error(e)
-        tb = traceback.format_exc()
-        logging.debug(tb)
-        sys.exit(-1)
+def _get_local(entry):
+    return f'{TEST_DATA_DIR}/derived/{entry}.header'

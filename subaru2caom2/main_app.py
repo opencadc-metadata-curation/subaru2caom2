@@ -3,7 +3,7 @@
 # ******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
 # *************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
 #
-#  (c) 2020.                            (c) 2020.
+#  (c) 2021.                            (c) 2021.
 #  Government of Canada                 Gouvernement du Canada
 #  National Research Council            Conseil national de recherches
 #  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -78,49 +78,99 @@ import os
 import sys
 import traceback
 
-from caom2 import Observation
+from caom2 import Observation, DataProductType, CalibrationLevel
 from caom2utils import ObsBlueprint, get_gen_proc_arg_parser, gen_proc
 from caom2pipe import manage_composable as mc
 
 
 __all__ = [
-    'blank_main_app', 
-    'update', 
-    'BlankName', 
+    'APPLICATION',
+    'ARCHIVE',
     'COLLECTION',
-    'APPLICATION', 
-    'ARCHIVE', 
+    'subaru_main_app',
+    'SubaruName',
     'to_caom2',
+    'update',
 ]
 
 
-APPLICATION = 'blank2caom2'
-COLLECTION = 'BLANK'
-ARCHIVE = 'BLANK'
+APPLICATION = 'subaru2caom2'
+COLLECTION = 'SUBARU'
+ARCHIVE = 'SUBARUPROC'
 
 
-class BlankName(mc.StorageName):
+class SubaruName(mc.StorageName):
     """Naming rules:
     - support mixed-case file name storage, and mixed-case obs id values
     - support uncompressed files in storage
     """
 
-    BLANK_NAME_PATTERN = '*'
+    SUBARU_NAME_PATTERN = '*'
 
-    def __init__(
-        self, obs_id=None, fname_on_disk=None, file_name=None, entry=None
-    ):
-        self.fname_in_ad = file_name
-        super(BlankName, self).__init__(
-            obs_id, 
-            COLLECTION, 
-            BlankName.BLANK_NAME_PATTERN, 
-            fname_on_disk=file_name, 
-            entry=entry,
+    def __init__(self, file_name=None, artifact_uri=None, entry=None):
+        if file_name is not None:
+            self._file_name = file_name
+            self.obs_id = self._get_obs_id()
+            super(SubaruName, self).__init__(
+                self.obs_id,
+                collection=COLLECTION,
+                collection_pattern=SubaruName.SUBARU_NAME_PATTERN,
+                scheme='cadc',
+                archive=ARCHIVE,
+                fname_on_disk=file_name,
+                entry=entry,
+                compression='',
+            )
+        if artifact_uri is not None:
+            scheme, path, file_name = mc.decompose_uri(artifact_uri)
+            self._file_name = file_name
+            self.obs_id = self._get_obs_id()
+            super(SubaruName, self).__init__(
+                self.obs_id,
+                collection=COLLECTION,
+                collection_pattern=SubaruName.SUBARU_NAME_PATTERN,
+                scheme=scheme,
+                archive=path,
+                fname_on_disk=file_name,
+                entry=entry,
+                compression='',
+            )
+        self._product_id = self._get_product_id()
+        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger.error(self)
+
+    def __str__(self):
+        return (
+            f'\n'
+            f'      obs_id: {self.obs_id}\n'
+            f'source_names: {self.source_names}\n'
+            f'   file_name: {self.file_name}\n'
+            f'     lineage: {self.lineage}\n'
         )
+
+    def _get_obs_id(self):
+        bits = self._file_name.split('.')
+        return '.'.join(ii for ii in bits[:3])
+
+    def _get_product_id(self):
+        return SubaruName.remove_extensions(self._file_name)
+
+    @property
+    def file_name(self):
+        return self._file_name
+
+    @property
+    def product_id(self):
+        return self._product_id
 
     def is_valid(self):
         return True
+
+    @staticmethod
+    def remove_extensions(entry):
+        return mc.StorageName.remove_extensions(
+            entry
+        ).replace('.fz', '').replace('.weight', '')
 
 
 def accumulate_bp(bp, uri):
@@ -139,6 +189,8 @@ def accumulate_bp(bp, uri):
     bp.set('Artifact.metaProducer', meta_producer)
     bp.set('Chunk.metaProducer', meta_producer)
 
+    bp.set('Plane.calibrationLevel', CalibrationLevel.PRODUCT)
+    bp.set('Plane.dataProductType', DataProductType.IMAGE)
     logging.debug('Done accumulate_bp.')
 
 
@@ -155,17 +207,15 @@ def update(observation, **kwargs):
     headers = kwargs.get('headers')
     fqn = kwargs.get('fqn')
     uri = kwargs.get('uri')
-    blank_name = None
+    subaru_name = None
     if uri is not None:
-        blank_name = BlankName(artifact_uri=uri)
+        subaru_name = SubaruName(artifact_uri=uri)
     if fqn is not None:
-        blank_name = BlankName(file_name=os.path.basename(fqn))
-    if blank_name is None:
+        subaru_name = SubaruName(file_name=os.path.basename(fqn))
+    if subaru_name is None:
         raise mc.CadcException(
-            f'Need one of fqn or uri defined for '
-            f'{observation.observation_id}'
+            f'Need one of fqn or uri defined for {observation.observation_id}'
         )
-
 
     logging.debug('Done update.')
     return observation
@@ -197,7 +247,7 @@ def _get_uris(args):
         for ii in args.local:
             file_id = mc.StorageName.remove_extensions(os.path.basename(ii))
             file_name = f'{file_id}.fits'
-            result.append(BlankName(file_name=file_name).file_uri)
+            result.append(SubaruName(file_name=file_name).file_uri)
     elif args.lineage:
         for ii in args.lineage:
             result.append(ii.split('/', 1)[1])
@@ -218,7 +268,7 @@ def to_caom2():
     return result
            
 
-def blank_main_app():
+def subaru_main_app():
     args = get_gen_proc_arg_parser().parse_args()
     try:
         result = to_caom2()
@@ -228,4 +278,3 @@ def blank_main_app():
         tb = traceback.format_exc()
         logging.debug(tb)
         sys.exit(-1)
-

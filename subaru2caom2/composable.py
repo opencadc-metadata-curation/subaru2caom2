@@ -3,7 +3,7 @@
 # ******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
 # *************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
 #
-#  (c) 2019.                            (c) 2019.
+#  (c) 2021.                            (c) 2021.
 #  Government of Canada                 Gouvernement du Canada
 #  National Research Council            Conseil national de recherches
 #  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -66,8 +66,81 @@
 #
 # ***********************************************************************
 #
-from blank2caom2 import BlankName
+
+"""
+Implements the default entry point functions for the workflow 
+application.
+
+'run' executes based on either provided lists of work, or files on disk.
+'run_by_state' executes incrementally, usually based on time-boxed 
+intervals.
+"""
+
+import logging
+import sys
+import traceback
+
+from caom2pipe import run_composable as rc
+from subaru2caom2 import APPLICATION, SubaruName
 
 
-def test_is_valid():
-    assert BlankName('anything').is_valid()
+META_VISITORS = []
+DATA_VISITORS = []
+
+
+def _run():
+    """
+    Uses a todo file to identify the work to be done.
+
+    :return 0 if successful, -1 if there's any sort of failure. Return status
+        is used by airflow for task instance management and reporting.
+    """
+    return rc.run_by_todo(
+        config=None,
+        name_builder=None,
+        command_name=APPLICATION,
+        meta_visitors=META_VISITORS,
+        data_visitors=DATA_VISITORS,
+        chooser=None,
+    )
+
+
+def run():
+    """Wraps _run in exception handling, with sys.exit calls."""
+    try:
+        result = _run()
+        sys.exit(result)
+    except Exception as e:
+        logging.error(e)
+        tb = traceback.format_exc()
+        logging.debug(tb)
+        sys.exit(-1)
+
+
+def _run_state():
+    """Uses a state file with a timestamp to control which entries will be
+    processed.
+    """
+    return rc.run_by_state(
+        config=None,
+        name_builder=None,
+        command_name=APPLICATION,
+        bookmark_name=None,
+        meta_visitors=META_VISITORS,
+        data_visitors=DATA_VISITORS,
+        end_time=None,
+        source=None,
+        chooser=None,
+    )
+
+
+def run_state():
+    """Wraps _run_state in exception handling."""
+    try:
+        _run_state()
+        sys.exit(0)
+    except Exception as e:
+        logging.error(e)
+        tb = traceback.format_exc()
+        logging.debug(tb)
+        sys.exit(-1)
