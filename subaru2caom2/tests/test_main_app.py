@@ -73,46 +73,60 @@ from subaru2caom2 import main_app, APPLICATION, COLLECTION, SubaruName
 from subaru2caom2 import ARCHIVE
 from caom2pipe import manage_composable as mc
 
-import glob
+import logging
 import os
 import sys
+import traceback
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
 PLUGIN = os.path.join(os.path.dirname(THIS_DIR), 'main_app.py')
 
+LOOKUP = {
+    'SCLA_189.232+62.201': [
+        'SCLA_189.232+62.201.W-C-IC.cat',
+        'SCLA_189.232+62.201.W-S-I.fits',
+        'SCLA_189.232+62.201.W-C-IC.fits',
+        'SCLA_189.232+62.201.W-S-I.weight.fits.fz',
+        'SCLA_189.232+62.201.W-C-IC.weight.fits.fz',
+        'SCLA_189.232+62.201.W-S-Z.cat',
+        'SCLA_189.232+62.201.W-J-V.cat',
+        'SCLA_189.232+62.201.W-S-Z.fits',
+        'SCLA_189.232+62.201.W-J-V.fits',
+        'SCLA_189.232+62.201.W-S-Z.weight.fits.fz',
+        'SCLA_189.232+62.201.W-J-V.weight.fits.fz',
+        'SCLA_189.232+62.201.W-S-I.cat',
+    ],
+}
+
 
 def pytest_generate_tests(metafunc):
-    obs_id_list = glob.glob(f'{TEST_DATA_DIR}/derived/*.header')
+    obs_id_list = LOOKUP.keys()
     metafunc.parametrize('test_name', obs_id_list)
 
 
 @patch('caom2utils.fits2caom2.CadcDataClient')
 def test_main_app(data_client_mock, test_name):
-    basename = os.path.basename(test_name)
-    subaru_name = SubaruName(file_name=basename.replace('.header', ''))
-    obs_path = f'{TEST_DATA_DIR}/derived/{subaru_name.obs_id}.expected.xml'
-    output_file = f'{TEST_DATA_DIR}/derived/{subaru_name.obs_id}.actual.xml'
+    obs_path = f'{TEST_DATA_DIR}/derived/{test_name}.expected.xml'
+    output_file = f'{TEST_DATA_DIR}/derived/{test_name}.actual.xml'
 
     if os.path.exists(output_file):
         os.unlink(output_file)
 
-    local = _get_local(subaru_name.file_name)
+    local = _get_local(test_name)
+    lineage = _get_lineage(test_name)
 
     data_client_mock.return_value.get_file_info.side_effect = _get_file_info
 
     sys.argv = (
-        f'{APPLICATION} --no_validate '
-        f'--local {local} --observation {COLLECTION} {subaru_name.obs_id} -o '
-        f'{output_file} --plugin {PLUGIN} --module {PLUGIN} --lineage '
-        f'{subaru_name.lineage}'
+        f'{APPLICATION} --no_validate --local {local} --observation '
+        f'{COLLECTION} {test_name} -o {output_file} --plugin {PLUGIN} '
+        f'--module {PLUGIN} --lineage {lineage}'
      ).split()
     print(sys.argv)
     try:
         main_app.to_caom2()
     except Exception as e:
-        import logging
-        import traceback
         logging.error(traceback.format_exc())
 
     compare_result = mc.compare_observations(output_file, obs_path)
@@ -126,4 +140,17 @@ def _get_file_info(archive, file_id):
 
 
 def _get_local(entry):
-    return f'{TEST_DATA_DIR}/derived/{entry}.header'
+    return ' '.join(
+        f'{TEST_DATA_DIR}/derived/{ii}.header' for ii in LOOKUP.get(entry)
+    )
+
+
+def _get_lineage(entry):
+    result = ''
+    for entry in LOOKUP.get(entry):
+        storage_name = SubaruName(file_name=entry)
+        result = (
+            f'{result} {storage_name.product_id}/cadc:{ARCHIVE}/'
+            f'{storage_name.file_name}'
+        )
+    return result

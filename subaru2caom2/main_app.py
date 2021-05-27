@@ -79,7 +79,10 @@ import sys
 import traceback
 
 from caom2 import Observation, DataProductType, CalibrationLevel
+from caom2 import ProductType
 from caom2utils import ObsBlueprint, get_gen_proc_arg_parser, gen_proc
+from caom2pipe import astro_composable as ac
+from caom2pipe import caom_composable as cc
 from caom2pipe import manage_composable as mc
 
 
@@ -136,8 +139,9 @@ class SubaruName(mc.StorageName):
                 compression='',
             )
         self._product_id = self._get_product_id()
+        self._file_name = self._file_name.replace('.header', '')
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._logger.error(self)
+        self._logger.debug(self)
 
     def __str__(self):
         return (
@@ -163,6 +167,10 @@ class SubaruName(mc.StorageName):
     def product_id(self):
         return self._product_id
 
+    @property
+    def is_derived(self):
+        return self._file_name.startswith('SCLA')
+
     def is_valid(self):
         return True
 
@@ -170,7 +178,7 @@ class SubaruName(mc.StorageName):
     def remove_extensions(entry):
         return mc.StorageName.remove_extensions(
             entry
-        ).replace('.fz', '').replace('.weight', '')
+        ).replace('.fz', '').replace('.weight', '').replace('.cat', '')
 
 
 def accumulate_bp(bp, uri):
@@ -179,18 +187,81 @@ def accumulate_bp(bp, uri):
     logging.debug('Begin accumulate_bp.')
     bp.configure_position_axes((1, 2))
     bp.configure_time_axis(3)
-    bp.configure_energy_axis(4)
-    bp.configure_polarization_axis(5)
-    bp.configure_observable_axis(6)
 
     meta_producer = mc.get_version(APPLICATION)
-    bp.set('Observation.metaProducer', meta_producer)
-    bp.set('Plane.metaProducer', meta_producer)
-    bp.set('Artifact.metaProducer', meta_producer)
-    bp.set('Chunk.metaProducer', meta_producer)
 
+    # observation
+    bp.set('Observation.metaProducer', meta_producer)
+
+    storage_name = SubaruName(artifact_uri=uri)
+    if storage_name.is_derived:
+        bp.set('Observation.algorithm.name', 'SUPRIME MEGAPIPE')
+        bp.set('DerivedObservation.members', {})
+
+    bp.clear('Observation.metaRelease')
+    bp.add_fits_attribute('Observation.metaRelease', 'DATE')
+
+    bp.set('Observation.environment.photometric', True)
+    bp.add_fits_attribute('Observation.environment.seeing', 'IQFINAL')
+
+    bp.set('Observation.instrument.name', 'Suprime')
+
+    bp.set('Observation.telescope.name', 'Subaru')
+    x, y, z = ac.get_geocentric_location('Subaru')
+    bp.set('Observation.telescope.geoLocationX', x)
+    bp.set('Observation.telescope.geoLocationY', y)
+    bp.set('Observation.telescope.geoLocationZ', z)
+
+    # plane
     bp.set('Plane.calibrationLevel', CalibrationLevel.PRODUCT)
     bp.set('Plane.dataProductType', DataProductType.IMAGE)
+    bp.set('Plane.metaProducer', meta_producer)
+
+    bp.clear('Plane.dataRelease')
+    bp.add_fits_attribute('Plane.dataRelease', 'DATE')
+    bp.clear('Plane.metaRelease')
+    bp.add_fits_attribute('Plane.metaRelease', 'DATE')
+
+    bp.clear('Plane.metrics.magLimit')
+    bp.add_fits_attribute('Plane.metrics.magLimit', 'ML_5SIGA')
+
+    bp.clear('Plane.provenance.lastExecuted')
+    bp.add_fits_attribute('Plane.provenance.lastExecuted', 'DATE')
+    bp.clear('Plane.provenance.name')
+    bp.add_fits_attribute('Plane.provenance.name', 'SOFTNAME')
+    bp.set('Plane.provenance.producer', 'CADC')
+    bp.clear('Plane.provenance.project')
+    bp.add_fits_attribute('Plane.provenance.project', 'SOFTAUTH')
+    # I'd use this value, but it's not an URL
+    # bp.add_fits_attribute('Plane.provenance.reference', 'SOFTINST')
+    bp.set('Plane.provenance.reference', 'http://www.iap.fr')
+    bp.clear('Plane.provenance.version')
+    bp.add_fits_attribute('Plane.provenance.version', 'SOFTVERS')
+
+    # artifact
+    bp.set('Artifact.metaProducer', meta_producer)
+    if '.weight' in uri:
+        bp.set('Artifact.productType', ProductType.WEIGHT)
+    elif '.cat' in uri:
+        bp.set('Artifact.productType', ProductType.AUXILIARY)
+    else:
+        bp.set('Artifact.productType', ProductType.SCIENCE)
+
+    # chunk
+    bp.set('Chunk.metaProducer', meta_producer)
+
+    bp.clear('Chunk.position.resolution')
+    bp.add_fits_attribute('Chunk.position.resolution', 'IQFINAL')
+
+    bp.set('Chunk.time.axis.axis.ctype', 'TIME')
+    bp.set('Chunk.time.axis.axis.cunit', 'd')
+    bp.set('Chunk.time.axis.function.naxis', 1)
+    bp.set('Chunk.time.axis.function.refCoord.pix', 0.5)
+    bp.add_fits_attribute('Chunk.time.axis.function.refCoord.val', 'MJD-OBS')
+    bp.clear('Chunk.time.exposure')
+    bp.add_fits_attribute('Chunk.time.exposure', 'EXPTIME')
+    bp.set('Chunk.time.timesys', 'MJD')
+
     logging.debug('Done accumulate_bp.')
 
 
@@ -216,9 +287,56 @@ def update(observation, **kwargs):
         raise mc.CadcException(
             f'Need one of fqn or uri defined for {observation.observation_id}'
         )
+    min_seeing = None
+    if (observation.environment is not None and
+            observation.environment.seeing is not None):
+        min_seeing = observation.environment.seeing
+    for plane in observation.planes.values():
+        if (
+            '.weight' not in subaru_name.file_name and
+            '.cat' not in subaru_name.file_name
+        ):
+            cc.update_plane_provenance_single(
+                plane, headers, 'HISTORY', 'SUBARU',
+                _repair_history_provenance_value,
+                observation.observation_id)
+            min_seeing = mc.minimize_on_keyword(
+                min_seeing, mc.get_keyword(headers, 'IQFINAL')
+            )
+        for artifact in plane.artifacts.values():
+            if artifact.uri != subaru_name.file_uri:
+                continue
+            for part in artifact.parts.values():
+                for chunk in part.chunks:
+                    chunk.time_axis = None
 
+    if observation.environment is not None:
+        observation.environment.seeing = min_seeing
+    cc.update_observation_members(observation)
     logging.debug('Done update.')
     return observation
+
+
+def _repair_history_provenance_value(value, obs_id):
+    logging.debug(f'Begin _repair_history_provenance_value for {obs_id}')
+    results = []
+    # HISTORY headers with provenance:
+    # HISTORY  input image SUPA0010787
+    # HISTORY  input image SUPA0010788
+    # HISTORY  input image SUPA0010789
+    # HISTORY  input image SUPA0010791
+    if 'input image' in str(value):
+        for entry in value:
+            if 'input image' in entry:
+                temp = str(entry).split('input image ')
+                prov_prod_id = temp[1].strip()
+                # 0 - observation
+                # 1 - plane
+                # obs id is the same as the plane id for SimpleObservations
+                #
+                results.append([prov_prod_id, prov_prod_id])
+    logging.debug(f'End _repair_history_provenance_value')
+    return results
 
 
 def _build_blueprints(uris):
@@ -245,12 +363,11 @@ def _get_uris(args):
     result = []
     if args.local:
         for ii in args.local:
-            file_id = mc.StorageName.remove_extensions(os.path.basename(ii))
-            file_name = f'{file_id}.fits'
-            result.append(SubaruName(file_name=file_name).file_uri)
+            result.append(SubaruName(file_name=os.path.basename(ii)).file_uri)
     elif args.lineage:
         for ii in args.lineage:
-            result.append(ii.split('/', 1)[1])
+            ignore_product_id, artifact_uri = mc.decompose_lineage(ii)
+            result.append(artifact_uri)
     else:
         raise mc.CadcException(
             f'Could not define uri from these args {args}')

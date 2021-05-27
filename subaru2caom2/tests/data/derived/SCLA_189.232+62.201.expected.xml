@@ -1,31 +1,145 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<caom2:Observation xmlns:caom2="http://www.opencadc.org/caom2/xml/v2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="caom2:SimpleObservation" caom2:id="b1bed2c3-dbd6-45cf-bd64-e650e5a58493" caom2:metaProducer="subaru2caom2/0.1.0">
+<caom2:Observation xmlns:caom2="http://www.opencadc.org/caom2/xml/v2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="caom2:DerivedObservation" caom2:id="b1bed2c3-dbd6-45cf-bd64-e650e5a58493" caom2:metaProducer="subaru2caom2/0.1.0">
   <caom2:collection>SUBARU</caom2:collection>
   <caom2:observationID>SCLA_189.232+62.201</caom2:observationID>
+  <caom2:metaRelease>2021-04-24T07:09:37.000</caom2:metaRelease>
   <caom2:algorithm>
-    <caom2:name>exposure</caom2:name>
+    <caom2:name>SUPRIME MEGAPIPE</caom2:name>
   </caom2:algorithm>
   <caom2:intent>science</caom2:intent>
+  <caom2:target>
+    <caom2:name>HDF</caom2:name>
+  </caom2:target>
+  <caom2:telescope>
+    <caom2:name>Subaru</caom2:name>
+    <caom2:geoLocationX>-5464468.109716696</caom2:geoLocationX>
+    <caom2:geoLocationY>-2493053.6504484504</caom2:geoLocationY>
+    <caom2:geoLocationZ>2150943.6050810195</caom2:geoLocationZ>
+  </caom2:telescope>
+  <caom2:instrument>
+    <caom2:name>Suprime</caom2:name>
+  </caom2:instrument>
+  <caom2:environment>
+    <caom2:seeing>0.86</caom2:seeing>
+    <caom2:photometric>true</caom2:photometric>
+  </caom2:environment>
   <caom2:planes>
-    <caom2:plane caom2:id="c49119f1-df8f-4d9f-b484-b0a570cba884" caom2:metaProducer="subaru2caom2/0.1.0">
-      <caom2:productID>SCLA_189.232+62.201.W-S-Z</caom2:productID>
+    <caom2:plane caom2:id="fb861527-d982-4ba2-be5e-e898b0fb8cb3" caom2:metaProducer="subaru2caom2/0.1.0">
+      <caom2:productID>SCLA_189.232+62.201.W-C-IC</caom2:productID>
+      <caom2:metaRelease>2021-04-24T07:10:55.000</caom2:metaRelease>
+      <caom2:dataRelease>2021-04-24T07:10:55.000</caom2:dataRelease>
       <caom2:dataProductType>image</caom2:dataProductType>
       <caom2:calibrationLevel>3</caom2:calibrationLevel>
+      <caom2:provenance>
+        <caom2:name>SWarp</caom2:name>
+        <caom2:version>2.38.0</caom2:version>
+        <caom2:project>2010-2012 IAP/CNRS/UPMC</caom2:project>
+        <caom2:producer>CADC</caom2:producer>
+        <caom2:reference>http://www.iap.fr</caom2:reference>
+        <caom2:lastExecuted>2021-04-24T07:10:55.000</caom2:lastExecuted>
+        <caom2:inputs>
+          <caom2:planeURI>caom:SUBARU/SUPA0010788/SUPA0010788</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010789/SUPA0010789</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010791/SUPA0010791</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010787/SUPA0010787</caom2:planeURI>
+        </caom2:inputs>
+      </caom2:provenance>
+      <caom2:metrics>
+        <caom2:magLimit>24.5</caom2:magLimit>
+      </caom2:metrics>
       <caom2:artifacts>
-        <caom2:artifact caom2:id="8dcfae86-5c0c-4f5a-8624-be52b004050f" caom2:metaProducer="subaru2caom2/0.1.0">
-          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-S-Z.weight.fits.fz</caom2:uri>
+        <caom2:artifact caom2:id="f5dca8f2-1e75-4887-8fcb-721e136adc04" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-C-IC.cat</caom2:uri>
+          <caom2:productType>auxiliary</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts/>
+        </caom2:artifact>
+        <caom2:artifact caom2:id="89fa3d4e-e093-4650-b679-2d9af360c7cf" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-C-IC.fits</caom2:uri>
           <caom2:productType>science</caom2:productType>
           <caom2:releaseType>data</caom2:releaseType>
           <caom2:contentType>application/fits</caom2:contentType>
           <caom2:parts>
-            <caom2:part caom2:id="f4be0431-85dc-4992-a681-e1ee440feff2">
+            <caom2:part caom2:id="690d07c0-07fd-4b3a-b46e-546216afeefc">
+              <caom2:name>0</caom2:name>
+              <caom2:chunks>
+                <caom2:chunk caom2:id="a403c927-36f6-4991-b0b2-02b5c14eb17c" caom2:metaProducer="subaru2caom2/0.1.0">
+                  <caom2:naxis>2</caom2:naxis>
+                  <caom2:positionAxis1>1</caom2:positionAxis1>
+                  <caom2:positionAxis2>2</caom2:positionAxis2>
+                  <caom2:position>
+                    <caom2:axis>
+                      <caom2:axis1>
+                        <caom2:ctype>RA---TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis1>
+                      <caom2:axis2>
+                        <caom2:ctype>DEC--TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis2>
+                      <caom2:function>
+                        <caom2:dimension>
+                          <caom2:naxis1>12764</caom2:naxis1>
+                          <caom2:naxis2>12065</caom2:naxis2>
+                        </caom2:dimension>
+                        <caom2:refCoord>
+                          <caom2:coord1>
+                            <caom2:pix>6382.0</caom2:pix>
+                            <caom2:val>189.2316</caom2:val>
+                          </caom2:coord1>
+                          <caom2:coord2>
+                            <caom2:pix>6032.5</caom2:pix>
+                            <caom2:val>62.2009</caom2:val>
+                          </caom2:coord2>
+                        </caom2:refCoord>
+                        <caom2:cd11>-5.555556e-05</caom2:cd11>
+                        <caom2:cd12>0.0</caom2:cd12>
+                        <caom2:cd21>0.0</caom2:cd21>
+                        <caom2:cd22>5.555556e-05</caom2:cd22>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:coordsys>ICRS</caom2:coordsys>
+                    <caom2:equinox>2000.0</caom2:equinox>
+                    <caom2:resolution>0.861</caom2:resolution>
+                  </caom2:position>
+                  <caom2:time>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>TIME</caom2:ctype>
+                        <caom2:cunit>d</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:function>
+                        <caom2:naxis>1</caom2:naxis>
+                        <caom2:delta>1.0</caom2:delta>
+                        <caom2:refCoord>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>52369.0</caom2:val>
+                        </caom2:refCoord>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:timesys>MJD</caom2:timesys>
+                    <caom2:exposure>2340.0</caom2:exposure>
+                  </caom2:time>
+                </caom2:chunk>
+              </caom2:chunks>
+            </caom2:part>
+          </caom2:parts>
+        </caom2:artifact>
+        <caom2:artifact caom2:id="1f0c3881-a5cb-41c5-936a-4a082574de54" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-C-IC.weight.fits.fz</caom2:uri>
+          <caom2:productType>weight</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts>
+            <caom2:part caom2:id="7e8918ee-d1a1-4ae3-b1ac-4e6439793827">
               <caom2:name>0</caom2:name>
               <caom2:chunks/>
             </caom2:part>
-            <caom2:part caom2:id="49e1eec0-1d18-47e7-8888-57ea1737b740">
+            <caom2:part caom2:id="da6f10f5-111e-44f3-bc7e-896716cc66be">
               <caom2:name>1</caom2:name>
               <caom2:chunks>
-                <caom2:chunk caom2:id="9ecd51c4-aba9-475e-bceb-e02e5bd2270f" caom2:metaProducer="subaru2caom2/0.1.0">
+                <caom2:chunk caom2:id="6d5d3986-3797-4b6a-a729-559f9afee09d" caom2:metaProducer="subaru2caom2/0.1.0">
                   <caom2:naxis>2</caom2:naxis>
                   <caom2:positionAxis1>1</caom2:positionAxis1>
                   <caom2:positionAxis2>2</caom2:positionAxis2>
@@ -63,6 +177,558 @@
                     <caom2:coordsys>ICRS</caom2:coordsys>
                     <caom2:equinox>2000.0</caom2:equinox>
                   </caom2:position>
+                  <caom2:time>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>TIME</caom2:ctype>
+                        <caom2:cunit>d</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:function>
+                        <caom2:naxis>1</caom2:naxis>
+                        <caom2:delta>1.0</caom2:delta>
+                        <caom2:refCoord>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>52369.0</caom2:val>
+                        </caom2:refCoord>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:timesys>MJD</caom2:timesys>
+                    <caom2:exposure>0.0</caom2:exposure>
+                  </caom2:time>
+                </caom2:chunk>
+              </caom2:chunks>
+            </caom2:part>
+          </caom2:parts>
+        </caom2:artifact>
+      </caom2:artifacts>
+    </caom2:plane>
+    <caom2:plane caom2:id="b685c7be-d8a4-45c6-879b-5a7d05324bf3" caom2:metaProducer="subaru2caom2/0.1.0">
+      <caom2:productID>SCLA_189.232+62.201.W-S-I</caom2:productID>
+      <caom2:metaRelease>2021-04-24T07:10:43.000</caom2:metaRelease>
+      <caom2:dataRelease>2021-04-24T07:10:43.000</caom2:dataRelease>
+      <caom2:dataProductType>image</caom2:dataProductType>
+      <caom2:calibrationLevel>3</caom2:calibrationLevel>
+      <caom2:provenance>
+        <caom2:name>SWarp</caom2:name>
+        <caom2:version>2.38.0</caom2:version>
+        <caom2:project>2010-2012 IAP/CNRS/UPMC</caom2:project>
+        <caom2:producer>CADC</caom2:producer>
+        <caom2:reference>http://www.iap.fr</caom2:reference>
+        <caom2:lastExecuted>2021-04-24T07:10:43.000</caom2:lastExecuted>
+        <caom2:inputs>
+          <caom2:planeURI>caom:SUBARU/SUPA0010789/SUPA0010789</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010787/SUPA0010787</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010788/SUPA0010788</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010791/SUPA0010791</caom2:planeURI>
+        </caom2:inputs>
+      </caom2:provenance>
+      <caom2:metrics>
+        <caom2:magLimit>25.43</caom2:magLimit>
+      </caom2:metrics>
+      <caom2:artifacts>
+        <caom2:artifact caom2:id="ddc87527-9860-4848-87ac-2e98ae67e35f" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-S-I.fits</caom2:uri>
+          <caom2:productType>science</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts>
+            <caom2:part caom2:id="9cb1c181-418f-42c2-ba03-9413d8570a80">
+              <caom2:name>0</caom2:name>
+              <caom2:chunks>
+                <caom2:chunk caom2:id="3cead2a5-b4e1-40b9-ae5f-add584b5c099" caom2:metaProducer="subaru2caom2/0.1.0">
+                  <caom2:naxis>2</caom2:naxis>
+                  <caom2:positionAxis1>1</caom2:positionAxis1>
+                  <caom2:positionAxis2>2</caom2:positionAxis2>
+                  <caom2:position>
+                    <caom2:axis>
+                      <caom2:axis1>
+                        <caom2:ctype>RA---TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis1>
+                      <caom2:axis2>
+                        <caom2:ctype>DEC--TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis2>
+                      <caom2:function>
+                        <caom2:dimension>
+                          <caom2:naxis1>12764</caom2:naxis1>
+                          <caom2:naxis2>12065</caom2:naxis2>
+                        </caom2:dimension>
+                        <caom2:refCoord>
+                          <caom2:coord1>
+                            <caom2:pix>6382.0</caom2:pix>
+                            <caom2:val>189.2316</caom2:val>
+                          </caom2:coord1>
+                          <caom2:coord2>
+                            <caom2:pix>6032.5</caom2:pix>
+                            <caom2:val>62.2009</caom2:val>
+                          </caom2:coord2>
+                        </caom2:refCoord>
+                        <caom2:cd11>-5.555556e-05</caom2:cd11>
+                        <caom2:cd12>0.0</caom2:cd12>
+                        <caom2:cd21>0.0</caom2:cd21>
+                        <caom2:cd22>5.555556e-05</caom2:cd22>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:coordsys>ICRS</caom2:coordsys>
+                    <caom2:equinox>2000.0</caom2:equinox>
+                    <caom2:resolution>0.991</caom2:resolution>
+                  </caom2:position>
+                  <caom2:time>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>TIME</caom2:ctype>
+                        <caom2:cunit>d</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:function>
+                        <caom2:naxis>1</caom2:naxis>
+                        <caom2:delta>1.0</caom2:delta>
+                        <caom2:refCoord>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>53081.0</caom2:val>
+                        </caom2:refCoord>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:timesys>MJD</caom2:timesys>
+                    <caom2:exposure>1920.0</caom2:exposure>
+                  </caom2:time>
+                </caom2:chunk>
+              </caom2:chunks>
+            </caom2:part>
+          </caom2:parts>
+        </caom2:artifact>
+        <caom2:artifact caom2:id="bf274aaa-2508-4058-b06a-c43b788029b6" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-S-I.weight.fits.fz</caom2:uri>
+          <caom2:productType>weight</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts>
+            <caom2:part caom2:id="e56086ae-58cf-4ab5-bdbf-9179354e0380">
+              <caom2:name>0</caom2:name>
+              <caom2:chunks/>
+            </caom2:part>
+            <caom2:part caom2:id="2f314c17-ee46-4353-acd6-cd1c3c33281e">
+              <caom2:name>1</caom2:name>
+              <caom2:chunks>
+                <caom2:chunk caom2:id="25594e66-d994-4efe-880c-e97d0cb0abef" caom2:metaProducer="subaru2caom2/0.1.0">
+                  <caom2:naxis>2</caom2:naxis>
+                  <caom2:positionAxis1>1</caom2:positionAxis1>
+                  <caom2:positionAxis2>2</caom2:positionAxis2>
+                  <caom2:position>
+                    <caom2:axis>
+                      <caom2:axis1>
+                        <caom2:ctype>RA---TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis1>
+                      <caom2:axis2>
+                        <caom2:ctype>DEC--TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis2>
+                      <caom2:function>
+                        <caom2:dimension>
+                          <caom2:naxis1>12764</caom2:naxis1>
+                          <caom2:naxis2>12065</caom2:naxis2>
+                        </caom2:dimension>
+                        <caom2:refCoord>
+                          <caom2:coord1>
+                            <caom2:pix>6382.0</caom2:pix>
+                            <caom2:val>189.2316</caom2:val>
+                          </caom2:coord1>
+                          <caom2:coord2>
+                            <caom2:pix>6032.5</caom2:pix>
+                            <caom2:val>62.2009</caom2:val>
+                          </caom2:coord2>
+                        </caom2:refCoord>
+                        <caom2:cd11>-5.555556e-05</caom2:cd11>
+                        <caom2:cd12>0.0</caom2:cd12>
+                        <caom2:cd21>0.0</caom2:cd21>
+                        <caom2:cd22>5.555556e-05</caom2:cd22>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:coordsys>ICRS</caom2:coordsys>
+                    <caom2:equinox>2000.0</caom2:equinox>
+                  </caom2:position>
+                  <caom2:time>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>TIME</caom2:ctype>
+                        <caom2:cunit>d</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:function>
+                        <caom2:naxis>1</caom2:naxis>
+                        <caom2:delta>1.0</caom2:delta>
+                        <caom2:refCoord>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>53081.0</caom2:val>
+                        </caom2:refCoord>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:timesys>MJD</caom2:timesys>
+                    <caom2:exposure>0.0</caom2:exposure>
+                  </caom2:time>
+                </caom2:chunk>
+              </caom2:chunks>
+            </caom2:part>
+          </caom2:parts>
+        </caom2:artifact>
+        <caom2:artifact caom2:id="fe3d4da0-d4e5-44cb-9c34-5d2bde8ba63e" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-S-I.cat</caom2:uri>
+          <caom2:productType>auxiliary</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts/>
+        </caom2:artifact>
+      </caom2:artifacts>
+    </caom2:plane>
+    <caom2:plane caom2:id="3b8704fe-9156-4c47-870d-ed5a32194dcb" caom2:metaProducer="subaru2caom2/0.1.0">
+      <caom2:productID>SCLA_189.232+62.201.W-S-Z</caom2:productID>
+      <caom2:metaRelease>2021-04-26T07:24:23.000</caom2:metaRelease>
+      <caom2:dataRelease>2021-04-26T07:24:23.000</caom2:dataRelease>
+      <caom2:dataProductType>image</caom2:dataProductType>
+      <caom2:calibrationLevel>3</caom2:calibrationLevel>
+      <caom2:provenance>
+        <caom2:name>SWarp</caom2:name>
+        <caom2:version>2.38.0</caom2:version>
+        <caom2:project>2010-2012 IAP/CNRS/UPMC</caom2:project>
+        <caom2:producer>CADC</caom2:producer>
+        <caom2:reference>http://www.iap.fr</caom2:reference>
+        <caom2:lastExecuted>2021-04-26T07:24:23.000</caom2:lastExecuted>
+        <caom2:inputs>
+          <caom2:planeURI>caom:SUBARU/SUPA0010788/SUPA0010788</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010791/SUPA0010791</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010787/SUPA0010787</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010789/SUPA0010789</caom2:planeURI>
+        </caom2:inputs>
+      </caom2:provenance>
+      <caom2:metrics>
+        <caom2:magLimit>26.04</caom2:magLimit>
+      </caom2:metrics>
+      <caom2:artifacts>
+        <caom2:artifact caom2:id="b39e6bd6-82fd-48ac-8abc-255950993ecb" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-S-Z.cat</caom2:uri>
+          <caom2:productType>auxiliary</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts/>
+        </caom2:artifact>
+        <caom2:artifact caom2:id="e7dbc45c-c0d9-4632-831f-1f3fbc42a1d4" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-S-Z.fits</caom2:uri>
+          <caom2:productType>science</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts>
+            <caom2:part caom2:id="c4fb2276-cdb2-4a7e-adba-a31f21fc35a9">
+              <caom2:name>0</caom2:name>
+              <caom2:chunks>
+                <caom2:chunk caom2:id="fe4c2613-ff4c-4111-a34d-4f4967a99f7f" caom2:metaProducer="subaru2caom2/0.1.0">
+                  <caom2:naxis>2</caom2:naxis>
+                  <caom2:positionAxis1>1</caom2:positionAxis1>
+                  <caom2:positionAxis2>2</caom2:positionAxis2>
+                  <caom2:position>
+                    <caom2:axis>
+                      <caom2:axis1>
+                        <caom2:ctype>RA---TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis1>
+                      <caom2:axis2>
+                        <caom2:ctype>DEC--TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis2>
+                      <caom2:function>
+                        <caom2:dimension>
+                          <caom2:naxis1>12764</caom2:naxis1>
+                          <caom2:naxis2>12065</caom2:naxis2>
+                        </caom2:dimension>
+                        <caom2:refCoord>
+                          <caom2:coord1>
+                            <caom2:pix>6382.0</caom2:pix>
+                            <caom2:val>189.2316</caom2:val>
+                          </caom2:coord1>
+                          <caom2:coord2>
+                            <caom2:pix>6032.5</caom2:pix>
+                            <caom2:val>62.2009</caom2:val>
+                          </caom2:coord2>
+                        </caom2:refCoord>
+                        <caom2:cd11>-5.555556e-05</caom2:cd11>
+                        <caom2:cd12>0.0</caom2:cd12>
+                        <caom2:cd21>0.0</caom2:cd21>
+                        <caom2:cd22>5.555556e-05</caom2:cd22>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:coordsys>ICRS</caom2:coordsys>
+                    <caom2:equinox>2000.0</caom2:equinox>
+                    <caom2:resolution>0.936</caom2:resolution>
+                  </caom2:position>
+                  <caom2:time>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>TIME</caom2:ctype>
+                        <caom2:cunit>d</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:function>
+                        <caom2:naxis>1</caom2:naxis>
+                        <caom2:delta>1.0</caom2:delta>
+                        <caom2:refCoord>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>52736.0</caom2:val>
+                        </caom2:refCoord>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:timesys>MJD</caom2:timesys>
+                    <caom2:exposure>46140.0</caom2:exposure>
+                  </caom2:time>
+                </caom2:chunk>
+              </caom2:chunks>
+            </caom2:part>
+          </caom2:parts>
+        </caom2:artifact>
+        <caom2:artifact caom2:id="b63ddcc6-2009-45a2-a8c9-6e86b9aefdb5" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-S-Z.weight.fits.fz</caom2:uri>
+          <caom2:productType>weight</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts>
+            <caom2:part caom2:id="8eadf112-18e4-49f2-87d2-3e0a32fce05c">
+              <caom2:name>0</caom2:name>
+              <caom2:chunks/>
+            </caom2:part>
+            <caom2:part caom2:id="d1f47ba9-4d6c-4f9b-8bd9-489bb1202f71">
+              <caom2:name>1</caom2:name>
+              <caom2:chunks>
+                <caom2:chunk caom2:id="bf999f3a-acf5-4d0e-9314-1894ba2b7abe" caom2:metaProducer="subaru2caom2/0.1.0">
+                  <caom2:naxis>2</caom2:naxis>
+                  <caom2:positionAxis1>1</caom2:positionAxis1>
+                  <caom2:positionAxis2>2</caom2:positionAxis2>
+                  <caom2:position>
+                    <caom2:axis>
+                      <caom2:axis1>
+                        <caom2:ctype>RA---TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis1>
+                      <caom2:axis2>
+                        <caom2:ctype>DEC--TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis2>
+                      <caom2:function>
+                        <caom2:dimension>
+                          <caom2:naxis1>12764</caom2:naxis1>
+                          <caom2:naxis2>12065</caom2:naxis2>
+                        </caom2:dimension>
+                        <caom2:refCoord>
+                          <caom2:coord1>
+                            <caom2:pix>6382.0</caom2:pix>
+                            <caom2:val>189.2316</caom2:val>
+                          </caom2:coord1>
+                          <caom2:coord2>
+                            <caom2:pix>6032.5</caom2:pix>
+                            <caom2:val>62.2009</caom2:val>
+                          </caom2:coord2>
+                        </caom2:refCoord>
+                        <caom2:cd11>-5.555556e-05</caom2:cd11>
+                        <caom2:cd12>0.0</caom2:cd12>
+                        <caom2:cd21>0.0</caom2:cd21>
+                        <caom2:cd22>5.555556e-05</caom2:cd22>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:coordsys>ICRS</caom2:coordsys>
+                    <caom2:equinox>2000.0</caom2:equinox>
+                  </caom2:position>
+                  <caom2:time>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>TIME</caom2:ctype>
+                        <caom2:cunit>d</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:function>
+                        <caom2:naxis>1</caom2:naxis>
+                        <caom2:delta>1.0</caom2:delta>
+                        <caom2:refCoord>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>52736.0</caom2:val>
+                        </caom2:refCoord>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:timesys>MJD</caom2:timesys>
+                    <caom2:exposure>0.0</caom2:exposure>
+                  </caom2:time>
+                </caom2:chunk>
+              </caom2:chunks>
+            </caom2:part>
+          </caom2:parts>
+        </caom2:artifact>
+      </caom2:artifacts>
+    </caom2:plane>
+    <caom2:plane caom2:id="ddc73aae-b9bb-49a7-baf3-af687c614eae" caom2:metaProducer="subaru2caom2/0.1.0">
+      <caom2:productID>SCLA_189.232+62.201.W-J-V</caom2:productID>
+      <caom2:metaRelease>2021-04-24T07:09:37.000</caom2:metaRelease>
+      <caom2:dataRelease>2021-04-24T07:09:37.000</caom2:dataRelease>
+      <caom2:dataProductType>image</caom2:dataProductType>
+      <caom2:calibrationLevel>3</caom2:calibrationLevel>
+      <caom2:provenance>
+        <caom2:name>SWarp</caom2:name>
+        <caom2:version>2.38.0</caom2:version>
+        <caom2:project>2010-2012 IAP/CNRS/UPMC</caom2:project>
+        <caom2:producer>CADC</caom2:producer>
+        <caom2:reference>http://www.iap.fr</caom2:reference>
+        <caom2:lastExecuted>2021-04-24T07:09:37.000</caom2:lastExecuted>
+        <caom2:inputs>
+          <caom2:planeURI>caom:SUBARU/SUPA0010787/SUPA0010787</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010791/SUPA0010791</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010788/SUPA0010788</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARU/SUPA0010789/SUPA0010789</caom2:planeURI>
+        </caom2:inputs>
+      </caom2:provenance>
+      <caom2:metrics>
+        <caom2:magLimit>24.75</caom2:magLimit>
+      </caom2:metrics>
+      <caom2:artifacts>
+        <caom2:artifact caom2:id="3f17b69b-2cc1-4623-8976-a4a8e8ded968" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-J-V.cat</caom2:uri>
+          <caom2:productType>auxiliary</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts/>
+        </caom2:artifact>
+        <caom2:artifact caom2:id="76e62212-c2e5-4a77-a4c6-866a6b61dc05" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-J-V.fits</caom2:uri>
+          <caom2:productType>science</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts>
+            <caom2:part caom2:id="b06f73ad-e612-47b8-ab59-2d31d3e3009c">
+              <caom2:name>0</caom2:name>
+              <caom2:chunks>
+                <caom2:chunk caom2:id="fdc2e556-6f33-4504-a397-b8973ba30a38" caom2:metaProducer="subaru2caom2/0.1.0">
+                  <caom2:naxis>2</caom2:naxis>
+                  <caom2:positionAxis1>1</caom2:positionAxis1>
+                  <caom2:positionAxis2>2</caom2:positionAxis2>
+                  <caom2:position>
+                    <caom2:axis>
+                      <caom2:axis1>
+                        <caom2:ctype>RA---TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis1>
+                      <caom2:axis2>
+                        <caom2:ctype>DEC--TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis2>
+                      <caom2:function>
+                        <caom2:dimension>
+                          <caom2:naxis1>12764</caom2:naxis1>
+                          <caom2:naxis2>12065</caom2:naxis2>
+                        </caom2:dimension>
+                        <caom2:refCoord>
+                          <caom2:coord1>
+                            <caom2:pix>6382.0</caom2:pix>
+                            <caom2:val>189.2316</caom2:val>
+                          </caom2:coord1>
+                          <caom2:coord2>
+                            <caom2:pix>6032.5</caom2:pix>
+                            <caom2:val>62.2009</caom2:val>
+                          </caom2:coord2>
+                        </caom2:refCoord>
+                        <caom2:cd11>-5.555556e-05</caom2:cd11>
+                        <caom2:cd12>0.0</caom2:cd12>
+                        <caom2:cd21>0.0</caom2:cd21>
+                        <caom2:cd22>5.555556e-05</caom2:cd22>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:coordsys>ICRS</caom2:coordsys>
+                    <caom2:equinox>2000.0</caom2:equinox>
+                    <caom2:resolution>0.86</caom2:resolution>
+                  </caom2:position>
+                  <caom2:time>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>TIME</caom2:ctype>
+                        <caom2:cunit>d</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:function>
+                        <caom2:naxis>1</caom2:naxis>
+                        <caom2:delta>1.0</caom2:delta>
+                        <caom2:refCoord>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>52405.0</caom2:val>
+                        </caom2:refCoord>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:timesys>MJD</caom2:timesys>
+                    <caom2:exposure>2400.0</caom2:exposure>
+                  </caom2:time>
+                </caom2:chunk>
+              </caom2:chunks>
+            </caom2:part>
+          </caom2:parts>
+        </caom2:artifact>
+        <caom2:artifact caom2:id="96e95324-20c5-46f8-8d96-14c54c758c94" caom2:metaProducer="subaru2caom2/0.1.0">
+          <caom2:uri>cadc:SUBARUPROC/SCLA_189.232+62.201.W-J-V.weight.fits.fz</caom2:uri>
+          <caom2:productType>weight</caom2:productType>
+          <caom2:releaseType>data</caom2:releaseType>
+          <caom2:contentType>application/fits</caom2:contentType>
+          <caom2:parts>
+            <caom2:part caom2:id="14efeff7-cfbd-4532-8f86-89742b96dcdc">
+              <caom2:name>0</caom2:name>
+              <caom2:chunks/>
+            </caom2:part>
+            <caom2:part caom2:id="f800362c-fded-4903-a9cf-28a46d275aa1">
+              <caom2:name>1</caom2:name>
+              <caom2:chunks>
+                <caom2:chunk caom2:id="2fe857b1-5eb3-49d4-a8b3-4cb268c495a3" caom2:metaProducer="subaru2caom2/0.1.0">
+                  <caom2:naxis>2</caom2:naxis>
+                  <caom2:positionAxis1>1</caom2:positionAxis1>
+                  <caom2:positionAxis2>2</caom2:positionAxis2>
+                  <caom2:position>
+                    <caom2:axis>
+                      <caom2:axis1>
+                        <caom2:ctype>RA---TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis1>
+                      <caom2:axis2>
+                        <caom2:ctype>DEC--TAN</caom2:ctype>
+                        <caom2:cunit>deg</caom2:cunit>
+                      </caom2:axis2>
+                      <caom2:function>
+                        <caom2:dimension>
+                          <caom2:naxis1>12764</caom2:naxis1>
+                          <caom2:naxis2>12065</caom2:naxis2>
+                        </caom2:dimension>
+                        <caom2:refCoord>
+                          <caom2:coord1>
+                            <caom2:pix>6382.0</caom2:pix>
+                            <caom2:val>189.2316</caom2:val>
+                          </caom2:coord1>
+                          <caom2:coord2>
+                            <caom2:pix>6032.5</caom2:pix>
+                            <caom2:val>62.2009</caom2:val>
+                          </caom2:coord2>
+                        </caom2:refCoord>
+                        <caom2:cd11>-5.555556e-05</caom2:cd11>
+                        <caom2:cd12>0.0</caom2:cd12>
+                        <caom2:cd21>0.0</caom2:cd21>
+                        <caom2:cd22>5.555556e-05</caom2:cd22>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:coordsys>ICRS</caom2:coordsys>
+                    <caom2:equinox>2000.0</caom2:equinox>
+                  </caom2:position>
+                  <caom2:time>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>TIME</caom2:ctype>
+                        <caom2:cunit>d</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:function>
+                        <caom2:naxis>1</caom2:naxis>
+                        <caom2:delta>1.0</caom2:delta>
+                        <caom2:refCoord>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>52405.0</caom2:val>
+                        </caom2:refCoord>
+                      </caom2:function>
+                    </caom2:axis>
+                    <caom2:timesys>MJD</caom2:timesys>
+                    <caom2:exposure>0.0</caom2:exposure>
+                  </caom2:time>
                 </caom2:chunk>
               </caom2:chunks>
             </caom2:part>
@@ -71,4 +737,10 @@
       </caom2:artifacts>
     </caom2:plane>
   </caom2:planes>
+  <caom2:members>
+    <caom2:observationURI>caom:SUBARU/SUPA0010789</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARU/SUPA0010791</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARU/SUPA0010787</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARU/SUPA0010788</caom2:observationURI>
+  </caom2:members>
 </caom2:Observation>
