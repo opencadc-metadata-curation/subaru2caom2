@@ -294,7 +294,8 @@ def update(observation, **kwargs):
     for plane in observation.planes.values():
         if (
             '.weight' not in subaru_name.file_name and
-            '.cat' not in subaru_name.file_name
+            '.cat' not in subaru_name.file_name and
+            subaru_name.product_id == plane.product_id
         ):
             cc.update_plane_provenance_single(
                 plane, headers, 'HISTORY', 'SUBARU',
@@ -306,6 +307,8 @@ def update(observation, **kwargs):
         for artifact in plane.artifacts.values():
             if artifact.uri != subaru_name.file_uri:
                 continue
+            if plane.meta_release is not None and plane.data_release is None:
+                plane.data_release = plane.meta_release
             for part in artifact.parts.values():
                 for chunk in part.chunks:
                     chunk.time_axis = None
