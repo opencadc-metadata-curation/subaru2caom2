@@ -4,7 +4,7 @@
   <caom2:observationID>SCLA_189.232+62.201</caom2:observationID>
   <caom2:metaRelease>2021-04-24T07:09:37.000</caom2:metaRelease>
   <caom2:algorithm>
-    <caom2:name>SUPRIME MEGAPIPE</caom2:name>
+    <caom2:name>Suprime-Cam Legacy Archive</caom2:name>
   </caom2:algorithm>
   <caom2:intent>science</caom2:intent>
   <caom2:target>
@@ -108,6 +108,27 @@
                     <caom2:equinox>2000.0</caom2:equinox>
                     <caom2:resolution>0.861</caom2:resolution>
                   </caom2:position>
+                  <caom2:energy>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>WAVE</caom2:ctype>
+                        <caom2:cunit>Angstrom</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:range>
+                        <caom2:start>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>7149.5</caom2:val>
+                        </caom2:start>
+                        <caom2:end>
+                          <caom2:pix>1.5</caom2:pix>
+                          <caom2:val>8760.5</caom2:val>
+                        </caom2:end>
+                      </caom2:range>
+                    </caom2:axis>
+                    <caom2:specsys>TOPOCENT</caom2:specsys>
+                    <caom2:bandpassName>W-C-IC</caom2:bandpassName>
+                    <caom2:resolvingPower>4.9379267535692115</caom2:resolvingPower>
+                  </caom2:energy>
                   <caom2:time>
                     <caom2:axis>
                       <caom2:axis>
@@ -283,6 +304,27 @@
                     <caom2:equinox>2000.0</caom2:equinox>
                     <caom2:resolution>0.991</caom2:resolution>
                   </caom2:position>
+                  <caom2:energy>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>WAVE</caom2:ctype>
+                        <caom2:cunit>Angstrom</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:range>
+                        <caom2:start>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>6801.5</caom2:val>
+                        </caom2:start>
+                        <caom2:end>
+                          <caom2:pix>1.5</caom2:pix>
+                          <caom2:val>8524.5</caom2:val>
+                        </caom2:end>
+                      </caom2:range>
+                    </caom2:axis>
+                    <caom2:specsys>TOPOCENT</caom2:specsys>
+                    <caom2:bandpassName>W-S-I</caom2:bandpassName>
+                    <caom2:resolvingPower>4.447475333720256</caom2:resolvingPower>
+                  </caom2:energy>
                   <caom2:time>
                     <caom2:axis>
                       <caom2:axis>
@@ -690,6 +732,27 @@
                     <caom2:equinox>2000.0</caom2:equinox>
                     <caom2:resolution>0.936</caom2:resolution>
                   </caom2:position>
+                  <caom2:energy>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>WAVE</caom2:ctype>
+                        <caom2:cunit>Angstrom</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:range>
+                        <caom2:start>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>8379.5</caom2:val>
+                        </caom2:start>
+                        <caom2:end>
+                          <caom2:pix>1.5</caom2:pix>
+                          <caom2:val>9934.5</caom2:val>
+                        </caom2:end>
+                      </caom2:range>
+                    </caom2:axis>
+                    <caom2:specsys>TOPOCENT</caom2:specsys>
+                    <caom2:bandpassName>W-S-Z</caom2:bandpassName>
+                    <caom2:resolvingPower>5.888745980707395</caom2:resolvingPower>
+                  </caom2:energy>
                   <caom2:time>
                     <caom2:axis>
                       <caom2:axis>
@@ -868,6 +931,27 @@
                     <caom2:equinox>2000.0</caom2:equinox>
                     <caom2:resolution>0.86</caom2:resolution>
                   </caom2:position>
+                  <caom2:energy>
+                    <caom2:axis>
+                      <caom2:axis>
+                        <caom2:ctype>WAVE</caom2:ctype>
+                        <caom2:cunit>Angstrom</caom2:cunit>
+                      </caom2:axis>
+                      <caom2:range>
+                        <caom2:start>
+                          <caom2:pix>0.5</caom2:pix>
+                          <caom2:val>4872.0</caom2:val>
+                        </caom2:start>
+                        <caom2:end>
+                          <caom2:pix>1.5</caom2:pix>
+                          <caom2:val>6014.0</caom2:val>
+                        </caom2:end>
+                      </caom2:range>
+                    </caom2:axis>
+                    <caom2:specsys>TOPOCENT</caom2:specsys>
+                    <caom2:bandpassName>W-J-V</caom2:bandpassName>
+                    <caom2:resolvingPower>4.766199649737303</caom2:resolvingPower>
+                  </caom2:energy>
                   <caom2:time>
                     <caom2:axis>
                       <caom2:axis>

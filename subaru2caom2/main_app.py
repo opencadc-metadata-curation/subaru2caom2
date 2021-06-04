@@ -70,6 +70,93 @@
 """
 This module implements the ObsBlueprint mapping, as well as the workflow 
 entry point that executes the workflow.
+
+From SGw in Confluence:
+
+All the raw data from Subaru Suprime-Cam has been downloaded and processed.
+See this paper:
+https://ui.adsabs.harvard.edu/abs/2020ASPC..527..575G/abstract
+
+The files currently reside in: vos:sgwyn/suprime
+
+The following sub-directories should be moved somewhere more permanent. All
+the files should be moved to the new storage. Ideally the directory
+structure should be preserved, but if not the filenames are unique and could
+be put into a single namespace.
+
+1. vos:sgwyn/suprime/images/ : the individual images downloaded from STARS,
+stored as 1 file per image extension, includes science images and
+calibration data. The images are stored the way Subaru stores them: 10
+individual files, one per CCD of the mosaic. The filenames look like
+SUPA0009658.fits.fz. The last digit refers to one of the 10 CCDs. Note that
+for the first year, the camera only had 8 CCDs. These images are
+uncalibrateable. Relevant keywords include:
+
+FILTER01 (because FILTER would be too simple)
+DATA-TYP (OBJECT, DOMEFLAT, BIAS, …)
+DATE-OBS
+UT-STR
+EXPTIME
+
+2. vos:sgwyn/suprime/proc/ : the calibrated science images, merged into .fz
+compressed MEFs. Not all images were calibrated.  Filenames are like
+SUPA000965p.fits.fz. Process = SCLA
+
+3. vos:sgwyn/suprime/weights/ : weight maps for the above, also as .fz
+compressed MEFs. Filenames like: SUPA000965p.weight.fits.fz
+
+4. vos:sgwyn/suprime/stacks/ : contains stacked images, weight maps and
+catalogs. These are very simliar to MegaPipe files. Filter is in the
+FILTER01 keyword. Like MegaPipe, I would like the images in multiple filters
+covering the same patch of sky to be grouped into one CompositeObservation
+with many Planes. There are two types of stacks, with filenames like:
+SCLA_241.391+16.421.W-J-V.fits or like SCLA.013.157.W-J-V.fits, but have
+basically the same headers and grouping.
+
+From a CAOM perspective:
+
+
+1 observation SUPA0037434
+  - raw plane  (calibrationLevel=1)
+    - 10 artifacts vos:sgwyn/suprime/images/SUPA0037434[0123456789].fits.fz
+      - 1 chunk per artifact
+  - calibrated plane (calibrationLevel=2)
+    - 1 image artifact vos:sgwyn/suprime/proc/SUPA0037434p.fits.fz
+      - 10 chunks per artifact
+    - 1 weight artifact vos:sgwyn/suprime/proc/SUPA0037434p.weight.fits.fz
+
+other examples
+SUPA0037434
+SUPA0102090
+SUPA0122147
+SUPA0142583
+
+Stacks:
+
+1 composite observation SCLA_189.232+62.201
+  - 1 or more planes: calibrationLevel=3
+    - SCLA_189.232+62.201.W-C-IC
+    - SCLA_189.232+62.201.W-J-V
+    - SCLA_189.232+62.201.W-S-I
+    - SCLA_189.232+62.201.W-S-Z
+
+    - each plane has 3 artifacts
+      - vos:sgwyn/suprime/stacks/SCLA_189.232+62.201.W-C-IC.fits
+        (productType=catalog)
+      - vos:sgwyn/suprime/stacks/SCLA_189.232+62.201.W-C-IC.weight.fits.fz
+        (productType=weight)
+      - vos:sgwyn/suprime/stacks/SCLA_189.232+62.201.W-C-IC.cat
+        (productType=catalog)
+
+other examples:
+SCLA.134.129.W-J-VR
+SCLA.285.288.W-S-R+
+SCLA.396.170.W-C-RC
+SCLA.652.157.W-J-VR
+SCLA_270.000+30.000.W-J-VR
+
+JJ’s ingestion script: https://github.com/ijiraq/caom2maq/blob/master/subaru
+/suprimecam2caom2.py
 """
 
 import importlib
@@ -100,6 +187,57 @@ __all__ = [
 APPLICATION = 'subaru2caom2'
 COLLECTION = 'SUBARU'
 ARCHIVE = 'SUBARUPROC'
+
+# From SG - 27-05-21
+# 0 - centre wavelength
+# 1 - width
+# units are Angstroms
+x = [
+    ['I-A-L427', 4260,  257],
+    ['I-A-L445', 4442,  244],
+    ['I-A-L464', 4637,  269],
+    ['I-A-L484', 4845,  282],
+    ['I-A-L505', 5060,  287],
+    ['I-A-L527', 5261,  320],
+    ['I-A-L550', 5497, 350],
+    ['I-A-L574', 5764, 348],
+    ['I-A-L598', 6005, 376],
+    ['I-A-L624', 6233, 378],
+    ['I-A-L651', 6500, 410],
+    ['I-A-L679', 6784, 429],
+    ['I-A-L709', 7076, 413],
+    ['I-A-L738', 7364, 402],
+    ['I-A-L767', 7677, 445],
+    ['I-A-L797', 7969, 458],
+    ['I-A-L827', 8249, 423],
+    ['I-A-L856', 8569, 412],
+    ['N-A-L656', 6567, 202],
+    ['N-B-L711', 7119, 116],
+    ['N-B-L816', 8149, 168],
+    ['N-B-L921', 9182, 188],
+    ['W-A-Y	', 9984, 633],
+    ['W-C-IC', 7955, 1611],
+    ['W-C-RC', 6505, 1346],
+    ['W-J-B', 4398, 1106],
+    ['W-J-V', 5443, 1142],
+    ['W-J-VR', 5986, 1952],
+    ['W-S-G', 4705, 1468],
+    ['W-S-I', 7663, 1723],
+    ['W-S-R', 6248, 1587],
+    ['W-S-Z', 9157, 1555],
+]
+FILTER_LOOKUP = {}
+for ii in x:
+    FILTER_LOOKUP[ii[0]] = {'cw': ii[1], 'fwhm': ii[2]}
+
+# connected=False - don't ask the SVO filter service
+filter_cache = ac.FilterMetadataCache(
+    repair_filter_lookup = (lambda x: x),
+    repair_instrument_lookup = (lambda x: x),
+    telescope='SUBARU',
+    cache=FILTER_LOOKUP,
+    connected=False,
+)
 
 
 class SubaruName(mc.StorageName):
@@ -195,7 +333,7 @@ def accumulate_bp(bp, uri):
 
     storage_name = SubaruName(artifact_uri=uri)
     if storage_name.is_derived:
-        bp.set('Observation.algorithm.name', 'SUPRIME MEGAPIPE')
+        bp.set('Observation.algorithm.name', 'Suprime-Cam Legacy Archive')
         bp.set('DerivedObservation.members', {})
 
     bp.clear('Observation.metaRelease')
@@ -204,7 +342,7 @@ def accumulate_bp(bp, uri):
     bp.set('Observation.environment.photometric', True)
     bp.add_fits_attribute('Observation.environment.seeing', 'IQFINAL')
 
-    bp.set('Observation.instrument.name', 'Suprime')
+    bp.set('Observation.instrument.name', 'Suprime-Cam')
 
     bp.set('Observation.telescope.name', 'Subaru')
     x, y, z = ac.get_geocentric_location('Subaru')
@@ -213,8 +351,9 @@ def accumulate_bp(bp, uri):
     bp.set('Observation.telescope.geoLocationZ', z)
 
     # plane
-    bp.set('Plane.calibrationLevel', CalibrationLevel.PRODUCT)
-    bp.set('Plane.dataProductType', DataProductType.IMAGE)
+    if storage_name.is_derived:
+        bp.set('Plane.calibrationLevel', CalibrationLevel.PRODUCT)
+        bp.set('Plane.dataProductType', DataProductType.IMAGE)
     bp.set('Plane.metaProducer', meta_producer)
 
     bp.clear('Plane.dataRelease')
@@ -240,12 +379,13 @@ def accumulate_bp(bp, uri):
 
     # artifact
     bp.set('Artifact.metaProducer', meta_producer)
-    if '.weight' in uri:
-        bp.set('Artifact.productType', ProductType.WEIGHT)
-    elif '.cat' in uri:
-        bp.set('Artifact.productType', ProductType.AUXILIARY)
-    else:
-        bp.set('Artifact.productType', ProductType.SCIENCE)
+    if storage_name.is_derived:
+        if '.weight' in uri:
+            bp.set('Artifact.productType', ProductType.WEIGHT)
+        elif '.cat' in uri:
+            bp.set('Artifact.productType', ProductType.AUXILIARY)
+        else:
+            bp.set('Artifact.productType', ProductType.SCIENCE)
 
     # chunk
     bp.set('Chunk.metaProducer', meta_producer)
@@ -260,7 +400,7 @@ def accumulate_bp(bp, uri):
     bp.add_fits_attribute('Chunk.time.axis.function.refCoord.val', 'MJD-OBS')
     bp.clear('Chunk.time.exposure')
     bp.add_fits_attribute('Chunk.time.exposure', 'EXPTIME')
-    bp.set('Chunk.time.timesys', 'MJD')
+    bp.set('Chunk.time.timesys', 'UTC')
 
     logging.debug('Done accumulate_bp.')
 
@@ -312,6 +452,14 @@ def update(observation, **kwargs):
             for part in artifact.parts.values():
                 for chunk in part.chunks:
                     chunk.time_axis = None
+                    filter_name = mc.get_keyword(headers, 'FILTER01')
+                    if filter_name is not None:
+                        filter_name = filter_name.replace('+', '').strip()
+                        cc.build_chunk_energy_range(
+                            chunk,
+                            filter_name,
+                            FILTER_LOOKUP.get(filter_name),
+                        )
 
     if observation.environment is not None:
         observation.environment.seeing = min_seeing
