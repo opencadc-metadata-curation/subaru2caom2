@@ -82,7 +82,7 @@ THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
 PLUGIN = os.path.join(os.path.dirname(THIS_DIR), 'main_app.py')
 
-LOOKUP = {
+DERIVED_LOOKUP = {
     'SCLA_189.232+62.201': [
         'SCLA_189.232+62.201.W-C-IC.cat',
         'SCLA_189.232+62.201.W-S-I.fits',
@@ -97,30 +97,76 @@ LOOKUP = {
         'SCLA_189.232+62.201.W-J-V.weight.fits.fz',
         'SCLA_189.232+62.201.W-S-I.cat',
     ],
+    'SCLA.652.157': [
+        'SCLA.652.157.W-J-VR.weight.fits.fz',
+        'SCLA.652.157.W-J-VR.fits',
+        'SCLA.652.157.W-C-RC.weight.fits.fz',
+        'SCLA.652.157.W-C-RC.fits',
+    ],
+    'SCLA.396.170': [
+        'SCLA.396.170.W-C-RC.weight.fits.fz',
+        'SCLA.396.170.W-C-RC.fits',
+    ],
+    'SCLA.285.288': [
+        'SCLA.285.288.W-S-Z+.weight.fits.fz',
+        'SCLA.285.288.W-S-Z+.fits',
+        'SCLA.285.288.W-S-R+.weight.fits.fz',
+        'SCLA.285.288.W-S-R+.fits',
+        'SCLA.285.288.W-S-I+.weight.fits.fz',
+        'SCLA.285.288.W-S-I+.fits',
+        'SCLA.285.288.W-S-G+.weight.fits.fz',
+        'SCLA.285.288.W-S-G+.fits',
+        'SCLA.285.288.W-J-V.weight.fits.fz',
+        'SCLA.285.288.W-J-V.fits',
+        'SCLA.285.288.N-B-L921.weight.fits.fz',
+        'SCLA.285.288.N-B-L921.fits',
+    ],
+    'SCLA.134.129': [
+        'SCLA.134.129.W-J-VR.weight.fits.fz',
+        'SCLA.134.129.W-J-VR.fits',
+    ]
+}
+
+SIMPLE_LOOKUP = {
+    'SUPA0037434': ['SUPA0037434p.fits.fz'],
+    'SUPA0102090': ['SUPA0102090.fits.fz', 'SUPA0102090p.fits.fz'],
+    'SUPA0122147': ['SUPA0122147.fits.fz', 'SUPA0122147p.fits.fz'],
+    'SUPA0142583': ['SUPA0142583.fits.fz', 'SUPA0142583p.fits.fz'],
 }
 
 
 def pytest_generate_tests(metafunc):
-    obs_id_list = LOOKUP.keys()
+    temp1 = [
+        f'{TEST_DATA_DIR}/derived/{ii}.expected.xml'
+        for ii in DERIVED_LOOKUP.keys()
+    ]
+    temp2 = [
+        f'{TEST_DATA_DIR}/simple/{ii}.expected.xml'
+        for ii in SIMPLE_LOOKUP.keys()
+    ]
+    obs_id_list = temp1 + temp2
+    obs_id_list = temp2
     metafunc.parametrize('test_name', obs_id_list)
 
 
 @patch('caom2utils.fits2caom2.CadcDataClient')
 def test_main_app(data_client_mock, test_name):
-    obs_path = f'{TEST_DATA_DIR}/derived/{test_name}.expected.xml'
-    output_file = f'{TEST_DATA_DIR}/derived/{test_name}.actual.xml'
+    # obs_path = f'{TEST_DATA_DIR}/derived/{test_name}.expected.xml'
+    # output_file = f'{TEST_DATA_DIR}/derived/{test_name}.actual.xml'
+    output_file = test_name.replace('expected', 'actual')
 
     if os.path.exists(output_file):
         os.unlink(output_file)
 
-    local = _get_local(test_name)
-    lineage = _get_lineage(test_name)
+    tn = os.path.basename(test_name).replace('.expected.xml', '')
+    local = _get_local(tn)
+    lineage = _get_lineage(tn)
 
     data_client_mock.return_value.get_file_info.side_effect = _get_file_info
 
     sys.argv = (
         f'{APPLICATION} --no_validate --local {local} --observation '
-        f'{COLLECTION} {test_name} -o {output_file} --plugin {PLUGIN} '
+        f'{COLLECTION} {tn} -o {output_file} --plugin {PLUGIN} '
         f'--module {PLUGIN} --lineage {lineage}'
      ).split()
     print(sys.argv)
@@ -129,7 +175,7 @@ def test_main_app(data_client_mock, test_name):
     except Exception as e:
         logging.error(traceback.format_exc())
 
-    compare_result = mc.compare_observations(output_file, obs_path)
+    compare_result = mc.compare_observations(output_file, test_name)
     if compare_result is not None:
         raise AssertionError(compare_result)
     # assert False  # cause I want to see logging messages
@@ -140,17 +186,31 @@ def _get_file_info(archive, file_id):
 
 
 def _get_local(entry):
+    replace = 'simple'
+    lookup = SIMPLE_LOOKUP
+    if 'SCLA' in entry:
+        replace = 'derived'
+        lookup = DERIVED_LOOKUP
+
     return ' '.join(
-        f'{TEST_DATA_DIR}/derived/{ii}.header' for ii in LOOKUP.get(entry)
+        f'{TEST_DATA_DIR}/{replace}/{ii}.header' for ii in lookup.get(
+            entry
+        )
     )
 
 
 def _get_lineage(entry):
+    lookup = SIMPLE_LOOKUP
+    archive = 'SUBARU'
+    if 'SCLA' in entry:
+        lookup = DERIVED_LOOKUP
     result = ''
-    for entry in LOOKUP.get(entry):
-        storage_name = SubaruName(file_name=entry)
+    for ii in lookup.get(entry):
+        if 'SCLA' in ii or 'p.fits' in ii:
+            archive = ARCHIVE
+        storage_name = SubaruName(file_name=ii)
         result = (
-            f'{result} {storage_name.product_id}/cadc:{ARCHIVE}/'
+            f'{result} {storage_name.product_id}/cadc:{archive}/'
             f'{storage_name.file_name}'
         )
     return result

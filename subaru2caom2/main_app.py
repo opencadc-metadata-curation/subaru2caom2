@@ -166,7 +166,7 @@ import sys
 import traceback
 
 from caom2 import Observation, DataProductType, CalibrationLevel
-from caom2 import ProductType
+from caom2 import ProductType, DerivedObservation
 from caom2utils import ObsBlueprint, get_gen_proc_arg_parser, gen_proc
 from caom2pipe import astro_composable as ac
 from caom2pipe import caom_composable as cc
@@ -192,7 +192,7 @@ ARCHIVE = 'SUBARUPROC'
 # 0 - centre wavelength
 # 1 - width
 # units are Angstroms
-x = [
+y = [
     ['I-A-L427', 4260,  257],
     ['I-A-L445', 4442,  244],
     ['I-A-L464', 4637,  269],
@@ -227,13 +227,13 @@ x = [
     ['W-S-Z', 9157, 1555],
 ]
 FILTER_LOOKUP = {}
-for ii in x:
+for ii in y:
     FILTER_LOOKUP[ii[0]] = {'cw': ii[1], 'fwhm': ii[2]}
 
 # connected=False - don't ask the SVO filter service
 filter_cache = ac.FilterMetadataCache(
-    repair_filter_lookup = (lambda x: x),
-    repair_instrument_lookup = (lambda x: x),
+    repair_filter_lookup=(lambda x: x),
+    repair_instrument_lookup=(lambda x: x),
     telescope='SUBARU',
     cache=FILTER_LOOKUP,
     connected=False,
@@ -252,32 +252,22 @@ class SubaruName(mc.StorageName):
         if file_name is not None:
             self._file_name = file_name
             self.obs_id = self._get_obs_id()
-            super(SubaruName, self).__init__(
-                self.obs_id,
-                collection=COLLECTION,
-                collection_pattern=SubaruName.SUBARU_NAME_PATTERN,
-                scheme='cadc',
-                archive=ARCHIVE,
-                fname_on_disk=file_name,
-                entry=entry,
-                compression='',
-            )
+            self.scheme = 'cadc'
         if artifact_uri is not None:
             scheme, path, file_name = mc.decompose_uri(artifact_uri)
             self._file_name = file_name
             self.obs_id = self._get_obs_id()
-            super(SubaruName, self).__init__(
-                self.obs_id,
-                collection=COLLECTION,
-                collection_pattern=SubaruName.SUBARU_NAME_PATTERN,
-                scheme=scheme,
-                archive=path,
-                fname_on_disk=file_name,
-                entry=entry,
-                compression='',
-            )
+            self.scheme = scheme
+        if self.is_derived or 'p.fits' in self._file_name:
+            self._archive = 'SUBARUPROC'
+        else:
+            self._archive = 'SUBARU'
+        self._collection = COLLECTION
+        self._compression = ''
+        self._entry = entry
         self._product_id = self._get_product_id()
         self._file_name = self._file_name.replace('.header', '')
+        self._source_names = []
         self._logger = logging.getLogger(self.__class__.__name__)
         self._logger.debug(self)
 
@@ -291,11 +281,31 @@ class SubaruName(mc.StorageName):
         )
 
     def _get_obs_id(self):
-        bits = self._file_name.split('.')
-        return '.'.join(ii for ii in bits[:3])
+        if self.is_derived:
+            bits = self._file_name.split('.')
+            result = '.'.join(ii for ii in bits[:3])
+        else:
+            result = self._file_name[:11]
+        return result
 
     def _get_product_id(self):
-        return SubaruName.remove_extensions(self._file_name)
+        if self.is_derived or self.is_processed:
+            result = SubaruName.remove_extensions(self._file_name)
+        else:
+            result = self._obs_id
+        return result
+
+    @property
+    def archive(self):
+        return self._archive
+
+    @archive.setter
+    def archive(self, value):
+        self.archive = value
+
+    @property
+    def collection(self):
+        return self._collection
 
     @property
     def file_name(self):
@@ -308,6 +318,10 @@ class SubaruName(mc.StorageName):
     @property
     def is_derived(self):
         return self._file_name.startswith('SCLA')
+
+    @property
+    def is_processed(self):
+        return 'p' in self._file_name
 
     def is_valid(self):
         return True
@@ -351,9 +365,13 @@ def accumulate_bp(bp, uri):
     bp.set('Observation.telescope.geoLocationZ', z)
 
     # plane
+    calibration_level = CalibrationLevel.RAW_STANDARD
     if storage_name.is_derived:
-        bp.set('Plane.calibrationLevel', CalibrationLevel.PRODUCT)
-        bp.set('Plane.dataProductType', DataProductType.IMAGE)
+        calibration_level = CalibrationLevel.PRODUCT
+    elif storage_name.is_processed:
+        calibration_level = CalibrationLevel.CALIBRATED
+    bp.set('Plane.calibrationLevel', calibration_level)
+    bp.set('Plane.dataProductType', DataProductType.IMAGE)
     bp.set('Plane.metaProducer', meta_producer)
 
     bp.clear('Plane.dataRelease')
@@ -380,12 +398,12 @@ def accumulate_bp(bp, uri):
     # artifact
     bp.set('Artifact.metaProducer', meta_producer)
     if storage_name.is_derived:
+        artifact_product_type = ProductType.SCIENCE
         if '.weight' in uri:
-            bp.set('Artifact.productType', ProductType.WEIGHT)
+            artifact_product_type = ProductType.WEIGHT
         elif '.cat' in uri:
-            bp.set('Artifact.productType', ProductType.AUXILIARY)
-        else:
-            bp.set('Artifact.productType', ProductType.SCIENCE)
+            artifact_product_type = ProductType.AUXILIARY
+        bp.set('Artifact.productType', artifact_product_type)
 
     # chunk
     bp.set('Chunk.metaProducer', meta_producer)
@@ -435,7 +453,8 @@ def update(observation, **kwargs):
         if (
             '.weight' not in subaru_name.file_name and
             '.cat' not in subaru_name.file_name and
-            subaru_name.product_id == plane.product_id
+            subaru_name.product_id == plane.product_id and
+            subaru_name.is_derived
         ):
             cc.update_plane_provenance_single(
                 plane, headers, 'HISTORY', 'SUBARU',
@@ -446,6 +465,10 @@ def update(observation, **kwargs):
             )
         for artifact in plane.artifacts.values():
             if artifact.uri != subaru_name.file_uri:
+                logging.error(
+                    f'artifact {artifact.uri} storage name '
+                    f'{subaru_name.file_uri}'
+                )
                 continue
             if plane.meta_release is not None and plane.data_release is None:
                 plane.data_release = plane.meta_release
@@ -463,7 +486,8 @@ def update(observation, **kwargs):
 
     if observation.environment is not None:
         observation.environment.seeing = min_seeing
-    cc.update_observation_members(observation)
+    if isinstance(observation, DerivedObservation):
+        cc.update_observation_members(observation)
     logging.debug('Done update.')
     return observation
 
