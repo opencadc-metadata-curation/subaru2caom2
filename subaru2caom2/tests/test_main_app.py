@@ -128,10 +128,57 @@ DERIVED_LOOKUP = {
 }
 
 SIMPLE_LOOKUP = {
-    'SUPA0037434': ['SUPA0037434p.fits.fz'],
-    'SUPA0102090': ['SUPA0102090.fits.fz', 'SUPA0102090p.fits.fz'],
-    'SUPA0122147': ['SUPA0122147.fits.fz', 'SUPA0122147p.fits.fz'],
-    'SUPA0142583': ['SUPA0142583.fits.fz', 'SUPA0142583p.fits.fz'],
+    'SUPA003743': [
+        'SUPA0037430.fits.fz',
+        'SUPA0037431.fits.fz',
+        'SUPA0037432.fits.fz',
+        'SUPA0037433.fits.fz',
+        'SUPA0037434.fits.fz',
+        'SUPA0037435.fits.fz',
+        'SUPA0037436.fits.fz',
+        'SUPA0037437.fits.fz',
+        'SUPA0037438.fits.fz',
+        'SUPA0037439.fits.fz',
+        'SUPA003743p.fits.fz',
+    ],
+    'SUPA010209': [
+        'SUPA0102091.fits.fz',
+        'SUPA0102095.fits.fz',
+        'SUPA0102099.fits.fz',
+        'SUPA0102092.fits.fz',
+        'SUPA0102096.fits.fz',
+        'SUPA0102090.fits.fz',
+        'SUPA0102093.fits.fz',
+        'SUPA0102097.fits.fz',
+        'SUPA0102094.fits.fz',
+        'SUPA0102098.fits.fz',
+        'SUPA0102090.fits.fz',
+        'SUPA010209p.fits.fz',
+    ],
+    'SUPA012214': [
+        'SUPA0122141.fits.fz',
+        'SUPA0122142.fits.fz',
+        'SUPA0122143.fits.fz',
+        'SUPA0122144.fits.fz',
+        'SUPA0122145.fits.fz',
+        'SUPA0122147.fits.fz',
+        'SUPA0122147.fits.fz',
+        'SUPA0122148.fits.fz',
+        'SUPA0122149.fits.fz',
+        'SUPA0122147.fits.fz',
+        'SUPA012214p.fits.fz',
+    ],
+    'SUPA014258': [
+        'SUPA0142580.fits.fz',
+        'SUPA0142581.fits.fz',
+        'SUPA0142582.fits.fz',
+        'SUPA0142583.fits.fz',
+        'SUPA0142584.fits.fz',
+        'SUPA0142585.fits.fz',
+        'SUPA0142586.fits.fz',
+        'SUPA0142587.fits.fz',
+        'SUPA014258p.fits.fz',
+    ],
 }
 
 
@@ -145,14 +192,11 @@ def pytest_generate_tests(metafunc):
         for ii in SIMPLE_LOOKUP.keys()
     ]
     obs_id_list = temp1 + temp2
-    obs_id_list = temp2
     metafunc.parametrize('test_name', obs_id_list)
 
 
 @patch('caom2utils.fits2caom2.CadcDataClient')
 def test_main_app(data_client_mock, test_name):
-    # obs_path = f'{TEST_DATA_DIR}/derived/{test_name}.expected.xml'
-    # output_file = f'{TEST_DATA_DIR}/derived/{test_name}.actual.xml'
     output_file = test_name.replace('expected', 'actual')
 
     if os.path.exists(output_file):

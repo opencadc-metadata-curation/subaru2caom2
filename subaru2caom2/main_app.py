@@ -118,18 +118,18 @@ From a CAOM perspective:
 
 1 observation SUPA0037434
   - raw plane  (calibrationLevel=1)
-    - 10 artifacts vos:sgwyn/suprime/images/SUPA0037434[0123456789].fits.fz
+    - 10 artifacts vos:sgwyn/suprime/images/SUPA003743[0123456789].fits.fz
       - 1 chunk per artifact
   - calibrated plane (calibrationLevel=2)
-    - 1 image artifact vos:sgwyn/suprime/proc/SUPA0037434p.fits.fz
+    - 1 image artifact vos:sgwyn/suprime/proc/SUPA003743p.fits.fz
       - 10 chunks per artifact
-    - 1 weight artifact vos:sgwyn/suprime/proc/SUPA0037434p.weight.fits.fz
+    - 1 weight artifact vos:sgwyn/suprime/proc/SUPA003743p.weight.fits.fz
 
 other examples
-SUPA0037434
-SUPA0102090
-SUPA0122147
-SUPA0142583
+SUPA003743
+SUPA010209
+SUPA012214
+SUPA014258
 
 Stacks:
 
@@ -285,7 +285,7 @@ class SubaruName(mc.StorageName):
             bits = self._file_name.split('.')
             result = '.'.join(ii for ii in bits[:3])
         else:
-            result = self._file_name[:11]
+            result = self._file_name[:10]
         return result
 
     def _get_product_id(self):
@@ -321,7 +321,7 @@ class SubaruName(mc.StorageName):
 
     @property
     def is_processed(self):
-        return 'p' in self._file_name
+        return 'p.' in self._file_name
 
     def is_valid(self):
         return True
@@ -465,10 +465,10 @@ def update(observation, **kwargs):
             )
         for artifact in plane.artifacts.values():
             if artifact.uri != subaru_name.file_uri:
-                logging.error(
-                    f'artifact {artifact.uri} storage name '
-                    f'{subaru_name.file_uri}'
-                )
+                # logging.error(
+                #     f'artifact {artifact.uri} storage name '
+                #     f'{subaru_name.file_uri}'
+                # )
                 continue
             if plane.meta_release is not None and plane.data_release is None:
                 plane.data_release = plane.meta_release
@@ -537,11 +537,12 @@ def _build_blueprints(uris):
 def _get_uris(args):
     result = []
     if args.local:
-        for ii in args.local:
-            result.append(SubaruName(file_name=os.path.basename(ii)).file_uri)
+        for entry in args.local:
+            subaru_name = SubaruName(file_name=os.path.basename(entry))
+            result.append(subaru_name.file_uri)
     elif args.lineage:
-        for ii in args.lineage:
-            ignore_product_id, artifact_uri = mc.decompose_lineage(ii)
+        for entry in args.lineage:
+            ignore_product_id, artifact_uri = mc.decompose_lineage(entry)
             result.append(artifact_uri)
     else:
         raise mc.CadcException(

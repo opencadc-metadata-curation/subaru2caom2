@@ -92,16 +92,16 @@ def test_storage_name():
     assert test_subject.is_derived
     assert not test_subject.is_processed
 
-    test_subject = SubaruName(file_name='SUPA0037434p.fits.fz')
-    assert test_subject.obs_id == 'SUPA0037434'
-    assert test_subject.product_id == 'SUPA0037434p'
+    test_subject = SubaruName(file_name='SUPA003743p.fits.fz')
+    assert test_subject.obs_id == 'SUPA003743'
+    assert test_subject.product_id == 'SUPA003743p'
     assert not test_subject.is_derived
     assert test_subject.is_processed
-    assert test_subject.file_uri == 'cadc:SUBARUPROC/SUPA0037434p.fits.fz'
+    assert test_subject.file_uri == 'cadc:SUBARUPROC/SUPA003743p.fits.fz'
 
-    test_subject = SubaruName(file_name='SUPA00374349.fits.fz')
-    assert test_subject.obs_id == 'SUPA0037434'
-    assert test_subject.product_id == 'SUPA0037434'
+    test_subject = SubaruName(file_name='SUPA0037439.fits.fz')
+    assert test_subject.obs_id == 'SUPA003743'
+    assert test_subject.product_id == 'SUPA003743'
     assert not test_subject.is_derived
     assert not test_subject.is_processed
-    assert test_subject.file_uri == 'cadc:SUBARU/SUPA00374349.fits.fz'
+    assert test_subject.file_uri == 'cadc:SUBARU/SUPA0037439.fits.fz'
