@@ -86,7 +86,6 @@ SCLA:
   INGEST with a todo.txt file to fix mapping errors.
 - want to be able to scale horizontally, so there will be end timestamps as
   well
-- so, need a time-boxed VaultListDirDataSource implementation
 """
 
 import logging
