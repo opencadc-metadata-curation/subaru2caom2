@@ -1,4 +1,4 @@
-FROM opencadc/astropy:3.9-slim
+FROM opencadc/astropy:3.8-slim
 
 RUN apt-get update -y && apt-get dist-upgrade -y && \
     apt-get install -y \
@@ -11,8 +11,8 @@ RUN pip install cadcdata \
     caom2 \
     caom2repo \
     caom2utils \
-    ftputil \
     importlib-metadata \
+    python-dateutil \
     PyYAML \
     spherical-geometry \
     vos

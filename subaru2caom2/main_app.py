@@ -106,7 +106,7 @@ SUPA000965p.fits.fz. Process = SCLA
 compressed MEFs. Filenames like: SUPA000965p.weight.fits.fz
 
 4. vos:sgwyn/suprime/stacks/ : contains stacked images, weight maps and
-catalogs. These are very simliar to MegaPipe files. Filter is in the
+catalogs. These are very similar to MegaPipe files. Filter is in the
 FILTER01 keyword. Like MegaPipe, I would like the images in multiple filters
 covering the same patch of sky to be grouped into one CompositeObservation
 with many Planes. There are two types of stacks, with filenames like:
@@ -192,7 +192,7 @@ ARCHIVE = 'SUBARUPROC'
 # 0 - centre wavelength
 # 1 - width
 # units are Angstroms
-y = [
+filter_information = [
     ['I-A-L427', 4260,  257],
     ['I-A-L445', 4442,  244],
     ['I-A-L464', 4637,  269],
@@ -227,7 +227,7 @@ y = [
     ['W-S-Z', 9157, 1555],
 ]
 FILTER_LOOKUP = {}
-for ii in y:
+for ii in filter_information:
     FILTER_LOOKUP[ii[0]] = {'cw': ii[1], 'fwhm': ii[2]}
 
 # connected=False - don't ask the SVO filter service

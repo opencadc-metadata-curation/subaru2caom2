@@ -103,8 +103,14 @@ def test_run(run_mock):
             f'{test_f_id}/ad:{COLLECTION}/{test_f_name}', 'wrong lineage'
     finally:
         os.getcwd = getcwd_orig
-        # clean up the summary report text file
-        fqn = f'{test_main_app.TEST_DATA_DIR}/data_report.txt'
-        if os.path.exists(fqn):
-            os.unlink(fqn)
-
+        # clean up the files created as a by-product of a run
+        for f_name in [
+            'data_report.txt',
+            'failure_log.txt',
+            'rejected.yml',
+            'retries.txt',
+            'success_log.txt',
+        ]:
+            fqn = os.path.join(test_main_app.TEST_DATA_DIR, f_name)
+            if os.path.exists(fqn):
+                os.unlink(fqn)
