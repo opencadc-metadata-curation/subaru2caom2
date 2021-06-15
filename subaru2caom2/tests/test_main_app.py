@@ -124,7 +124,7 @@ DERIVED_LOOKUP = {
     'SCLA.134.129': [
         'SCLA.134.129.W-J-VR.weight.fits.fz',
         'SCLA.134.129.W-J-VR.fits',
-    ]
+    ],
 }
 
 SIMPLE_LOOKUP = {
@@ -212,7 +212,7 @@ def test_main_app(data_client_mock, test_name):
         f'{APPLICATION} --no_validate --local {local} --observation '
         f'{COLLECTION} {tn} -o {output_file} --plugin {PLUGIN} '
         f'--module {PLUGIN} --lineage {lineage}'
-     ).split()
+    ).split()
     print(sys.argv)
     try:
         main_app.to_caom2()
@@ -237,9 +237,7 @@ def _get_local(entry):
         lookup = DERIVED_LOOKUP
 
     return ' '.join(
-        f'{TEST_DATA_DIR}/{replace}/{ii}.header' for ii in lookup.get(
-            entry
-        )
+        f'{TEST_DATA_DIR}/{replace}/{ii}.header' for ii in lookup.get(entry)
     )
 
 

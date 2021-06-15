@@ -193,12 +193,12 @@ ARCHIVE = 'SUBARUPROC'
 # 1 - width
 # units are Angstroms
 filter_information = [
-    ['I-A-L427', 4260,  257],
-    ['I-A-L445', 4442,  244],
-    ['I-A-L464', 4637,  269],
-    ['I-A-L484', 4845,  282],
-    ['I-A-L505', 5060,  287],
-    ['I-A-L527', 5261,  320],
+    ['I-A-L427', 4260, 257],
+    ['I-A-L445', 4442, 244],
+    ['I-A-L464', 4637, 269],
+    ['I-A-L484', 4845, 282],
+    ['I-A-L505', 5060, 287],
+    ['I-A-L527', 5261, 320],
     ['I-A-L550', 5497, 350],
     ['I-A-L574', 5764, 348],
     ['I-A-L598', 6005, 376],
@@ -328,13 +328,16 @@ class SubaruName(mc.StorageName):
 
     @staticmethod
     def remove_extensions(entry):
-        return mc.StorageName.remove_extensions(
-            entry
-        ).replace('.fz', '').replace('.weight', '').replace('.cat', '')
+        return (
+            mc.StorageName.remove_extensions(entry)
+            .replace('.fz', '')
+            .replace('.weight', '')
+            .replace('.cat', '')
+        )
 
 
 def accumulate_bp(bp, uri):
-    """Configure the telescope-specific ObsBlueprint at the CAOM model 
+    """Configure the telescope-specific ObsBlueprint at the CAOM model
     Observation level."""
     logging.debug('Begin accumulate_bp.')
     bp.configure_position_axes((1, 2))
@@ -446,20 +449,26 @@ def update(observation, **kwargs):
             f'Need one of fqn or uri defined for {observation.observation_id}'
         )
     min_seeing = None
-    if (observation.environment is not None and
-            observation.environment.seeing is not None):
+    if (
+        observation.environment is not None
+        and observation.environment.seeing is not None
+    ):
         min_seeing = observation.environment.seeing
     for plane in observation.planes.values():
         if (
-            '.weight' not in subaru_name.file_name and
-            '.cat' not in subaru_name.file_name and
-            subaru_name.product_id == plane.product_id and
-            subaru_name.is_derived
+            '.weight' not in subaru_name.file_name
+            and '.cat' not in subaru_name.file_name
+            and subaru_name.product_id == plane.product_id
+            and subaru_name.is_derived
         ):
             cc.update_plane_provenance_single(
-                plane, headers, 'HISTORY', 'SUBARU',
+                plane,
+                headers,
+                'HISTORY',
+                'SUBARU',
                 _repair_history_provenance_value,
-                observation.observation_id)
+                observation.observation_id,
+            )
             min_seeing = mc.minimize_on_keyword(
                 min_seeing, mc.get_keyword(headers, 'IQFINAL')
             )
@@ -545,21 +554,19 @@ def _get_uris(args):
             ignore_product_id, artifact_uri = mc.decompose_lineage(entry)
             result.append(artifact_uri)
     else:
-        raise mc.CadcException(
-            f'Could not define uri from these args {args}')
+        raise mc.CadcException(f'Could not define uri from these args {args}')
     return result
 
 
 def to_caom2():
-    """This function is called by pipeline execution. It must have this name.
-    """
+    """This function is called by pipeline execution. It must have this name."""
     args = get_gen_proc_arg_parser().parse_args()
     uris = _get_uris(args)
     blueprints = _build_blueprints(uris)
     result = gen_proc(args, blueprints)
     logging.debug(f'Done {APPLICATION} processing.')
     return result
-           
+
 
 def subaru_main_app():
     args = get_gen_proc_arg_parser().parse_args()
