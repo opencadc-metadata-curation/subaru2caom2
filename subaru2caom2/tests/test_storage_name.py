@@ -89,19 +89,10 @@ def test_storage_name():
     )
     assert test_subject.obs_id == 'SCLA_189.232+62.201'
     assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'
-    assert test_subject.is_derived
-    assert not test_subject.is_processed
+    assert test_subject.is_legacy
 
     test_subject = SubaruName(file_name='SUPA003743p.fits.fz')
     assert test_subject.obs_id == 'SUPA003743'
     assert test_subject.product_id == 'SUPA003743p'
-    assert not test_subject.is_derived
-    assert test_subject.is_processed
+    assert not test_subject.is_legacy
     assert test_subject.file_uri == 'cadc:SUBARUPROC/SUPA003743p.fits.fz'
-
-    test_subject = SubaruName(file_name='SUPA0037439.fits.fz')
-    assert test_subject.obs_id == 'SUPA003743'
-    assert test_subject.product_id == 'SUPA003743'
-    assert not test_subject.is_derived
-    assert not test_subject.is_processed
-    assert test_subject.file_uri == 'cadc:SUBARU/SUPA0037439.fits.fz'

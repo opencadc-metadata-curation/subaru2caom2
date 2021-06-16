@@ -70,7 +70,7 @@
 from mock import patch
 
 from subaru2caom2 import main_app, APPLICATION, COLLECTION, SubaruName
-from subaru2caom2 import ARCHIVE
+from subaru2caom2 import PRODUCER
 from caom2pipe import manage_composable as mc
 
 import logging
@@ -82,7 +82,7 @@ THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
 PLUGIN = os.path.join(os.path.dirname(THIS_DIR), 'main_app.py')
 
-DERIVED_LOOKUP = {
+LEGACY_LOOKUP = {
     'SCLA_189.232+62.201': [
         'SCLA_189.232+62.201.W-C-IC.cat',
         'SCLA_189.232+62.201.W-S-I.fits',
@@ -127,69 +127,30 @@ DERIVED_LOOKUP = {
     ],
 }
 
-SIMPLE_LOOKUP = {
-    'SUPA003743': [
-        'SUPA0037430.fits.fz',
-        'SUPA0037431.fits.fz',
-        'SUPA0037432.fits.fz',
-        'SUPA0037433.fits.fz',
-        'SUPA0037434.fits.fz',
-        'SUPA0037435.fits.fz',
-        'SUPA0037436.fits.fz',
-        'SUPA0037437.fits.fz',
-        'SUPA0037438.fits.fz',
-        'SUPA0037439.fits.fz',
-        'SUPA003743p.fits.fz',
+PRODUCT_LOOKUP = {
+    'SUPA0037434': [
+        'SUPA0037434p.fits.fz',
     ],
-    'SUPA010209': [
-        'SUPA0102091.fits.fz',
-        'SUPA0102095.fits.fz',
-        'SUPA0102099.fits.fz',
-        'SUPA0102092.fits.fz',
-        'SUPA0102096.fits.fz',
-        'SUPA0102090.fits.fz',
-        'SUPA0102093.fits.fz',
-        'SUPA0102097.fits.fz',
-        'SUPA0102094.fits.fz',
-        'SUPA0102098.fits.fz',
-        'SUPA0102090.fits.fz',
-        'SUPA010209p.fits.fz',
+    'SUPA0102090': [
+        'SUPA0102090p.fits.fz',
     ],
-    'SUPA012214': [
-        'SUPA0122141.fits.fz',
-        'SUPA0122142.fits.fz',
-        'SUPA0122143.fits.fz',
-        'SUPA0122144.fits.fz',
-        'SUPA0122145.fits.fz',
-        'SUPA0122147.fits.fz',
-        'SUPA0122147.fits.fz',
-        'SUPA0122148.fits.fz',
-        'SUPA0122149.fits.fz',
-        'SUPA0122147.fits.fz',
-        'SUPA012214p.fits.fz',
+    'SUPA0122144': [
+        'SUPA0122144p.fits.fz',
     ],
-    'SUPA014258': [
-        'SUPA0142580.fits.fz',
-        'SUPA0142581.fits.fz',
-        'SUPA0142582.fits.fz',
-        'SUPA0142583.fits.fz',
-        'SUPA0142584.fits.fz',
-        'SUPA0142585.fits.fz',
-        'SUPA0142586.fits.fz',
-        'SUPA0142587.fits.fz',
-        'SUPA014258p.fits.fz',
-    ],
+    # 'SUPA0142581': [
+    #     'SUPA0142581p.fits.fz',
+    # ],
 }
 
 
 def pytest_generate_tests(metafunc):
     temp1 = [
-        f'{TEST_DATA_DIR}/derived/{ii}.expected.xml'
-        for ii in DERIVED_LOOKUP.keys()
+        f'{TEST_DATA_DIR}/{ii}.expected.xml'
+        for ii in LEGACY_LOOKUP.keys()
     ]
     temp2 = [
-        f'{TEST_DATA_DIR}/simple/{ii}.expected.xml'
-        for ii in SIMPLE_LOOKUP.keys()
+        f'{TEST_DATA_DIR}/{ii}.expected.xml'
+        for ii in PRODUCT_LOOKUP.keys()
     ]
     obs_id_list = temp1 + temp2
     metafunc.parametrize('test_name', obs_id_list)
@@ -230,29 +191,23 @@ def _get_file_info(archive, file_id):
 
 
 def _get_local(entry):
-    replace = 'simple'
-    lookup = SIMPLE_LOOKUP
+    lookup = PRODUCT_LOOKUP
     if 'SCLA' in entry:
-        replace = 'derived'
-        lookup = DERIVED_LOOKUP
-
+        lookup = LEGACY_LOOKUP
     return ' '.join(
-        f'{TEST_DATA_DIR}/{replace}/{ii}.header' for ii in lookup.get(entry)
+        f'{TEST_DATA_DIR}/{ii}.header' for ii in lookup.get(entry)
     )
 
 
 def _get_lineage(entry):
-    lookup = SIMPLE_LOOKUP
-    archive = 'SUBARU'
+    lookup = PRODUCT_LOOKUP
     if 'SCLA' in entry:
-        lookup = DERIVED_LOOKUP
+        lookup = LEGACY_LOOKUP
     result = ''
     for ii in lookup.get(entry):
-        if 'SCLA' in ii or 'p.fits' in ii:
-            archive = ARCHIVE
         storage_name = SubaruName(file_name=ii)
         result = (
-            f'{result} {storage_name.product_id}/cadc:{archive}/'
+            f'{result} {storage_name.product_id}/{PRODUCER}:{COLLECTION}/'
             f'{storage_name.file_name}'
         )
     return result
