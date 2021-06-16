@@ -71,6 +71,7 @@ from mock import patch
 
 from subaru2caom2 import main_app, APPLICATION, COLLECTION, SubaruName
 from subaru2caom2 import PRODUCER
+from caom2pipe import astro_composable as ac
 from caom2pipe import manage_composable as mc
 
 import logging
@@ -82,7 +83,7 @@ THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
 PLUGIN = os.path.join(os.path.dirname(THIS_DIR), 'main_app.py')
 
-LEGACY_LOOKUP = {
+LOOKUP = {
     'SCLA_189.232+62.201': [
         'SCLA_189.232+62.201.W-C-IC.cat',
         'SCLA_189.232+62.201.W-S-I.fits',
@@ -125,9 +126,6 @@ LEGACY_LOOKUP = {
         'SCLA.134.129.W-J-VR.weight.fits.fz',
         'SCLA.134.129.W-J-VR.fits',
     ],
-}
-
-PRODUCT_LOOKUP = {
     'SUPA0037434': [
         'SUPA0037434p.fits.fz',
     ],
@@ -144,20 +142,15 @@ PRODUCT_LOOKUP = {
 
 
 def pytest_generate_tests(metafunc):
-    temp1 = [
-        f'{TEST_DATA_DIR}/{ii}.expected.xml'
-        for ii in LEGACY_LOOKUP.keys()
+    obs_id_list = [
+        f'{TEST_DATA_DIR}/{ii}.expected.xml' for ii in LOOKUP.keys()
     ]
-    temp2 = [
-        f'{TEST_DATA_DIR}/{ii}.expected.xml'
-        for ii in PRODUCT_LOOKUP.keys()
-    ]
-    obs_id_list = temp1 + temp2
     metafunc.parametrize('test_name', obs_id_list)
 
 
+@patch('caom2pipe.client_composable.get_cadc_meta_client_v')
 @patch('caom2utils.fits2caom2.CadcDataClient')
-def test_main_app(data_client_mock, test_name):
+def test_main_app(fits2_data_client_mock, client_mock, test_name):
     output_file = test_name.replace('expected', 'actual')
 
     if os.path.exists(output_file):
@@ -167,7 +160,10 @@ def test_main_app(data_client_mock, test_name):
     local = _get_local(tn)
     lineage = _get_lineage(tn)
 
-    data_client_mock.return_value.get_file_info.side_effect = _get_file_info
+    fits2_data_client_mock.return_value.get_file_info.side_effect = (
+        _get_file_info
+    )
+    client_mock.side_effect = _get_node_mock
 
     sys.argv = (
         f'{APPLICATION} --no_validate --local {local} --observation '
@@ -191,23 +187,22 @@ def _get_file_info(archive, file_id):
 
 
 def _get_local(entry):
-    lookup = PRODUCT_LOOKUP
-    if 'SCLA' in entry:
-        lookup = LEGACY_LOOKUP
-    return ' '.join(
-        f'{TEST_DATA_DIR}/{ii}.header' for ii in lookup.get(entry)
-    )
+    return ' '.join(f'{TEST_DATA_DIR}/{ii}.header' for ii in LOOKUP.get(entry))
 
 
 def _get_lineage(entry):
-    lookup = PRODUCT_LOOKUP
-    if 'SCLA' in entry:
-        lookup = LEGACY_LOOKUP
     result = ''
-    for ii in lookup.get(entry):
+    for ii in LOOKUP.get(entry):
         storage_name = SubaruName(file_name=ii)
         result = (
             f'{result} {storage_name.product_id}/{PRODUCER}:{COLLECTION}/'
             f'{storage_name.file_name}'
         )
     return result
+
+
+def _get_node_mock(file_uri, ignore):
+    file_name = file_uri.split('/')[-1]
+    fqn = f'{TEST_DATA_DIR}/{file_name}.header'
+    fits_header = open(fqn).read()
+    return ac.make_headers_from_string(fits_header)

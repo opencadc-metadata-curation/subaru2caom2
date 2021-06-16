@@ -176,7 +176,10 @@ from caom2 import ProductType, DerivedObservation
 from caom2utils import ObsBlueprint, get_gen_proc_arg_parser, gen_proc
 from caom2pipe import astro_composable as ac
 from caom2pipe import caom_composable as cc
+from caom2pipe import client_composable as clc
 from caom2pipe import manage_composable as mc
+from caom2pipe import translate_composable as tc
+from vos import Client
 
 
 __all__ = [
@@ -244,6 +247,10 @@ filter_cache = ac.FilterMetadataCache(
     cache=FILTER_LOOKUP,
     connected=False,
 )
+
+# one instance for _update_observation_metadata
+# SCLA files are public, so no need for a subject.
+cadc_client = Client()
 
 
 class SubaruName(mc.StorageName):
@@ -352,6 +359,8 @@ def accumulate_bp(bp, uri):
 
     bp.clear('Observation.metaRelease')
     bp.add_fits_attribute('Observation.metaRelease', 'DATE')
+    bp.clear('Observation.type')
+    bp.add_fits_attribute('Observation.type', 'DATA-TYP')
 
     bp.set('Observation.environment.photometric', True)
     bp.add_fits_attribute('Observation.environment.seeing', 'IQFINAL')
@@ -382,16 +391,19 @@ def accumulate_bp(bp, uri):
 
     bp.clear('Plane.provenance.lastExecuted')
     bp.add_fits_attribute('Plane.provenance.lastExecuted', 'DATE')
-    bp.clear('Plane.provenance.name')
-    bp.add_fits_attribute('Plane.provenance.name', 'SOFTNAME')
     bp.set('Plane.provenance.producer', 'CADC')
-    bp.clear('Plane.provenance.project')
-    bp.add_fits_attribute('Plane.provenance.project', 'SOFTAUTH')
-    # I'd use this value, but it's not an URL
-    # bp.add_fits_attribute('Plane.provenance.reference', 'SOFTINST')
-    bp.set('Plane.provenance.reference', 'http://www.iap.fr')
-    bp.clear('Plane.provenance.version')
-    bp.add_fits_attribute('Plane.provenance.version', 'SOFTVERS')
+    if storage_name.is_legacy:
+        bp.clear('Plane.provenance.name')
+        bp.add_fits_attribute('Plane.provenance.name', 'SOFTNAME')
+        bp.clear('Plane.provenance.project')
+        bp.add_fits_attribute('Plane.provenance.project', 'SOFTAUTH')
+        # I'd use this value, but it's not an URL
+        # bp.add_fits_attribute('Plane.provenance.reference', 'SOFTINST')
+        bp.set('Plane.provenance.reference', 'http://www.iap.fr')
+        bp.clear('Plane.provenance.version')
+        bp.add_fits_attribute('Plane.provenance.version', 'SOFTVERS')
+    else:
+        bp.set('Plane.provenance.name', 'SCLA')
 
     # artifact
     bp.set('Artifact.metaProducer', meta_producer)
@@ -413,7 +425,15 @@ def accumulate_bp(bp, uri):
     bp.set('Chunk.time.axis.axis.cunit', 'd')
     bp.set('Chunk.time.axis.function.naxis', 1)
     bp.set('Chunk.time.axis.function.refCoord.pix', 0.5)
-    bp.add_fits_attribute('Chunk.time.axis.function.refCoord.val', 'MJD-OBS')
+    if storage_name.is_legacy:
+        bp.add_fits_attribute(
+            'Chunk.time.axis.function.refCoord.val', 'MJD-OBS'
+        )
+    else:
+        bp.set(
+            'Chunk.time.axis.function.refCoord.val',
+            '_get_time_function_val(header)',
+        )
     bp.clear('Chunk.time.exposure')
     bp.add_fits_attribute('Chunk.time.exposure', 'EXPTIME')
     bp.set('Chunk.time.timesys', 'UTC')
@@ -443,6 +463,7 @@ def update(observation, **kwargs):
         raise mc.CadcException(
             f'Need one of fqn or uri defined for {observation.observation_id}'
         )
+    _update_observation_metadata(observation, headers, subaru_name)
     min_seeing = None
     if (
         observation.environment is not None
@@ -454,19 +475,21 @@ def update(observation, **kwargs):
             '.weight' not in subaru_name.file_name
             and '.cat' not in subaru_name.file_name
             and subaru_name.product_id == plane.product_id
-            and subaru_name.is_legacy
         ):
-            cc.update_plane_provenance_single(
-                plane,
-                headers,
-                'HISTORY',
-                'SUBARU',
-                _repair_history_provenance_value,
-                observation.observation_id,
-            )
-            min_seeing = mc.minimize_on_keyword(
-                min_seeing, mc.get_keyword(headers, 'IQFINAL')
-            )
+            if subaru_name.is_legacy:
+                cc.update_plane_provenance_single(
+                    plane,
+                    headers,
+                    'HISTORY',
+                    'SUBARU',
+                    _repair_history_provenance_value,
+                    observation.observation_id,
+                )
+                min_seeing = mc.minimize_on_keyword(
+                    min_seeing, mc.get_keyword(headers, 'IQFINAL')
+                )
+            else:
+                _update_plane_provenance_inputs(plane)
         for artifact in plane.artifacts.values():
             if artifact.uri != subaru_name.file_uri:
                 # logging.error(
@@ -490,10 +513,71 @@ def update(observation, **kwargs):
 
     if observation.environment is not None:
         observation.environment.seeing = min_seeing
-    if isinstance(observation, DerivedObservation):
+    if subaru_name.is_legacy:
         cc.update_observation_members(observation)
     logging.debug('Done update.')
     return observation
+
+
+def _get_time_function_val(header):
+    date_obs = header.get('DATE-OBS')
+    ut_str = header.get('UT-STR')
+    start_time = None
+    if date_obs is not None and ut_str is not None:
+        temp = f'{date_obs}T{ut_str}'
+        start_time = ac.get_datetime(temp).value
+    return start_time
+
+
+def _update_observation_metadata(obs, headers, subaru_name):
+    """
+    Why this method exists:
+
+    There are files that have almost no metadata in the primary HDU, but
+    all the needed metadata in subsequent HDUs.
+
+    It's not possible to apply extension numbers for non-chunk blueprint
+    entries, so that means that to use the information captured in the
+    blueprint, the header that's provided must be manipulated instead.
+
+    :param obs:
+    :param headers:
+    :return:
+    """
+    logging.debug(
+        f'Begin _update_observation_metadata for {obs.observation_id}'
+    )
+    # headers is not None => .cat files
+    if headers is not None and len(headers) > 1 and not subaru_name.is_legacy:
+        module = importlib.import_module(__name__)
+        bp = ObsBlueprint(module=module)
+        accumulate_bp(bp, subaru_name.file_uri)
+        unmodified_headers = clc.get_cadc_meta_client_v(
+            subaru_name.file_uri, cadc_client
+        )
+        tc.add_headers_to_obs_by_blueprint(
+            obs,
+            unmodified_headers[1:],
+            bp,
+            subaru_name.file_uri,
+            subaru_name.product_id,
+        )
+    logging.debug('End _update_observation_metadata.')
+
+
+def _update_plane_provenance_inputs(plane):
+    """
+    Predict provenance inputs for level 2 calibration
+    :param plane:
+    :return:
+    """
+    if plane.provenance is not None:
+        ignore, plane_uri = cc.make_plane_uri(
+            plane.product_id.replace('p', '0'),
+            plane.product_id.replace('p', 'X'),
+            'SUBARU',
+        )
+        plane.provenance.inputs.add(plane_uri)
 
 
 def _repair_history_provenance_value(value, obs_id):
@@ -554,7 +638,9 @@ def _get_uris(args):
 
 
 def to_caom2():
-    """This function is called by pipeline execution. It must have this name."""
+    """
+    This function is called by pipeline execution. It must have this name.
+    """
     args = get_gen_proc_arg_parser().parse_args()
     uris = _get_uris(args)
     blueprints = _build_blueprints(uris)

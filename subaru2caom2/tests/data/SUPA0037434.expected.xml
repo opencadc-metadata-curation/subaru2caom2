@@ -6,7 +6,11 @@
   <caom2:algorithm>
     <caom2:name>Suprime-Cam Legacy Archive</caom2:name>
   </caom2:algorithm>
+  <caom2:type>OBJECT</caom2:type>
   <caom2:intent>science</caom2:intent>
+  <caom2:target>
+    <caom2:name>COSMOS</caom2:name>
+  </caom2:target>
   <caom2:telescope>
     <caom2:name>Subaru</caom2:name>
     <caom2:geoLocationX>-5464468.109716696</caom2:geoLocationX>
@@ -23,6 +27,14 @@
       <caom2:dataRelease>2021-04-13T18:55:12.000</caom2:dataRelease>
       <caom2:dataProductType>image</caom2:dataProductType>
       <caom2:calibrationLevel>2</caom2:calibrationLevel>
+      <caom2:provenance>
+        <caom2:name>SCLA</caom2:name>
+        <caom2:producer>CADC</caom2:producer>
+        <caom2:lastExecuted>2021-04-13T18:55:12.000</caom2:lastExecuted>
+        <caom2:inputs>
+          <caom2:planeURI>caom:SUBARU/SUPA00374340/SUPA0037434X</caom2:planeURI>
+        </caom2:inputs>
+      </caom2:provenance>
       <caom2:artifacts>
         <caom2:artifact caom2:id="bdd482de-0517-4155-80bc-bda20d8503de" caom2:metaProducer="subaru2caom2/0.1.0">
           <caom2:uri>cadc:SUBARUPROC/SUPA0037434p.fits.fz</caom2:uri>
@@ -106,7 +118,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -188,7 +200,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -270,7 +282,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -352,7 +364,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -434,7 +446,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -516,7 +528,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -598,7 +610,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -680,7 +692,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -762,7 +774,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
@@ -844,7 +856,7 @@
                         <caom2:delta>1.0</caom2:delta>
                         <caom2:refCoord>
                           <caom2:pix>0.5</caom2:pix>
-                          <caom2:val>0.0</caom2:val>
+                          <caom2:val>53415.32930847222</caom2:val>
                         </caom2:refCoord>
                       </caom2:function>
                     </caom2:axis>
