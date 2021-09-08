@@ -79,11 +79,11 @@ def test_run_by_state():
     pass
 
 
+@patch('caom2pipe.client_composable.ClientCollection')
 @patch('caom2pipe.execute_composable.OrganizeExecutes.do_one')
-def test_run(run_mock):
-    test_obs_id = 'TEST_OBS_ID'
-    test_f_id = 'test_file_id'
-    test_f_name = f'{test_f_id}.fits'
+def test_run(run_mock, clients_mock):
+    test_obs_id = 'SUPA014258'
+    test_f_name = 'SUPA014258p.weight.fits.fz'
     getcwd_orig = os.getcwd
     os.getcwd = Mock(return_value=test_main_app.TEST_DATA_DIR)
     try:
@@ -95,11 +95,9 @@ def test_run(run_mock):
         assert isinstance(test_storage, SubaruName), type(test_storage)
         assert test_storage.obs_id == test_obs_id, 'wrong obs id'
         assert test_storage.file_name == test_f_name, 'wrong file name'
-        assert test_storage.fname_on_disk == test_f_name, 'wrong fname on disk'
-        assert test_storage.url is None, 'wrong url'
         assert (
             test_storage.lineage
-            == f'{test_f_id}/ad:{COLLECTION}/{test_f_name}'
+            == f'SUPA014258p/cadc:{COLLECTION}/{test_f_name}'
         ), 'wrong lineage'
     finally:
         os.getcwd = getcwd_orig

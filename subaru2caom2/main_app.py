@@ -174,12 +174,11 @@ import traceback
 from caom2 import Observation, DataProductType, CalibrationLevel
 from caom2 import ProductType, DerivedObservation
 from caom2utils import ObsBlueprint, get_gen_proc_arg_parser, gen_proc
+from caom2utils import data_util
 from caom2pipe import astro_composable as ac
 from caom2pipe import caom_composable as cc
-from caom2pipe import client_composable as clc
 from caom2pipe import manage_composable as mc
 from caom2pipe import translate_composable as tc
-from vos import Client
 
 
 __all__ = [
@@ -195,7 +194,7 @@ __all__ = [
 
 APPLICATION = 'subaru2caom2'
 PRODUCER = 'cadc'
-COLLECTION = 'SUBARUPROC'
+COLLECTION = 'SUBARUCADC'
 
 # From SG - 27-05-21
 # 0 - centre wavelength
@@ -248,10 +247,6 @@ filter_cache = ac.FilterMetadataCache(
     connected=False,
 )
 
-# one instance for _update_observation_metadata
-# SCLA files are public, so no need for a subject.
-cadc_client = Client()
-
 
 class SubaruName(mc.StorageName):
     """Naming rules:
@@ -269,28 +264,22 @@ class SubaruName(mc.StorageName):
         if file_name is not None:
             self._file_name = file_name
             self.obs_id = self._get_obs_id()
+            uri = mc.build_uri(COLLECTION, file_name, 'cadc')
+            self._destination_uris = [uri]
         if artifact_uri is not None:
             scheme, path, file_name = mc.decompose_uri(artifact_uri)
             self._file_name = file_name
             self.obs_id = self._get_obs_id()
+            self._destination_uris = [artifact_uri]
         self._scheme = PRODUCER
         self._collection = COLLECTION
         self._compression = ''
         self._entry = entry
         self._product_id = self._get_product_id()
         self._file_name = self._file_name.replace('.header', '')
-        self._source_names = []
+        self._source_names = [entry]
         self._logger = logging.getLogger(self.__class__.__name__)
         self._logger.debug(self)
-
-    def __str__(self):
-        return (
-            f'\n'
-            f'      obs_id: {self.obs_id}\n'
-            f'source_names: {self.source_names}\n'
-            f'   file_name: {self.file_name}\n'
-            f'     lineage: {self.lineage}\n'
-        )
 
     def _get_obs_id(self):
         if self.is_legacy:
@@ -366,6 +355,8 @@ def accumulate_bp(bp, uri):
     bp.add_fits_attribute('Observation.environment.seeing', 'IQFINAL')
 
     bp.set('Observation.instrument.name', 'Suprime-Cam')
+    if '.cat' in uri:
+        bp.clear('Observation.instrument.keywords')
 
     bp.set('Observation.telescope.name', 'Subaru')
     x, y, z = ac.get_geocentric_location('Subaru')
@@ -463,7 +454,7 @@ def update(observation, **kwargs):
         raise mc.CadcException(
             f'Need one of fqn or uri defined for {observation.observation_id}'
         )
-    _update_observation_metadata(observation, headers, subaru_name)
+    _update_observation_metadata(observation, headers, subaru_name, fqn)
     min_seeing = None
     if (
         observation.environment is not None
@@ -529,7 +520,7 @@ def _get_time_function_val(header):
     return start_time
 
 
-def _update_observation_metadata(obs, headers, subaru_name):
+def _update_observation_metadata(obs, headers, subaru_name, fqn):
     """
     Why this method exists:
 
@@ -552,9 +543,7 @@ def _update_observation_metadata(obs, headers, subaru_name):
         module = importlib.import_module(__name__)
         bp = ObsBlueprint(module=module)
         accumulate_bp(bp, subaru_name.file_uri)
-        unmodified_headers = clc.get_cadc_meta_client_v(
-            subaru_name.file_uri, cadc_client
-        )
+        unmodified_headers = data_util.get_local_file_headers(fqn)
         tc.add_headers_to_obs_by_blueprint(
             obs,
             unmodified_headers[1:],

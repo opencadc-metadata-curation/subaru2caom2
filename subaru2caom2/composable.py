@@ -114,7 +114,7 @@ def _run():
     :return 0 if successful, -1 if there's any sort of failure. Return status
         is used by airflow for task instance management and reporting.
     """
-    name_builder = nbc.FileNameBuilder(SubaruName)
+    name_builder = nbc.GuessingBuilder(SubaruName)
     return rc.run_by_todo(
         name_builder=name_builder,
         command_name=APPLICATION,
@@ -141,7 +141,7 @@ def _run_state():
     """
     config = mc.Config()
     config.get_executors()
-    builder = nbc.FileNameBuilder(SubaruName)
+    builder = nbc.GuessingBuilder(SubaruName)
     clients = cc.ClientCollection(config)
     data_source = dsc.VaultListDirTimeBoxDataSource(
         clients.data_client, config

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <caom2:Observation xmlns:caom2="http://www.opencadc.org/caom2/xml/v2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="caom2:DerivedObservation" caom2:id="62294747-7451-4bd9-86aa-3b92a6348fba" caom2:metaProducer="subaru2caom2/0.1.0">
-  <caom2:collection>SUBARUPROC</caom2:collection>
+  <caom2:collection>SUBARUCADC</caom2:collection>
   <caom2:observationID>SCLA.134.129</caom2:observationID>
   <caom2:metaRelease>2021-04-24T12:37:20.000</caom2:metaRelease>
   <caom2:algorithm>
@@ -44,7 +44,7 @@
       </caom2:metrics>
       <caom2:artifacts>
         <caom2:artifact caom2:id="1f6ac80c-02f0-47b5-a510-295bb8cc266f" caom2:metaProducer="subaru2caom2/0.1.0">
-          <caom2:uri>cadc:SUBARUPROC/SCLA.134.129.W-J-VR.weight.fits.fz</caom2:uri>
+          <caom2:uri>cadc:SUBARUCADC/SCLA.134.129.W-J-VR.weight.fits.fz</caom2:uri>
           <caom2:productType>weight</caom2:productType>
           <caom2:releaseType>data</caom2:releaseType>
           <caom2:contentType>application/fits</caom2:contentType>
@@ -118,7 +118,7 @@
           </caom2:parts>
         </caom2:artifact>
         <caom2:artifact caom2:id="d7555ef1-a025-4190-a2f2-c6e45f4f4f8c" caom2:metaProducer="subaru2caom2/0.1.0">
-          <caom2:uri>cadc:SUBARUPROC/SCLA.134.129.W-J-VR.fits</caom2:uri>
+          <caom2:uri>cadc:SUBARUCADC/SCLA.134.129.W-J-VR.fits</caom2:uri>
           <caom2:productType>science</caom2:productType>
           <caom2:releaseType>data</caom2:releaseType>
           <caom2:contentType>application/fits</caom2:contentType>

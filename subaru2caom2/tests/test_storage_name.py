@@ -66,7 +66,8 @@
 #
 # ***********************************************************************
 #
-from subaru2caom2 import SubaruName
+
+from subaru2caom2 import SubaruName, COLLECTION
 
 
 def test_is_valid():
@@ -81,11 +82,11 @@ def test_storage_name():
     assert test_subject.obs_id == test_obs_id, 'wrong obs id'
     assert test_subject.product_id == test_f_id, 'wrong product id'
     assert (
-        test_subject.lineage == f'{test_f_id}/cadc:SUBARUPROC/{test_f_name}'
+        test_subject.lineage == f'{test_f_id}/cadc:{COLLECTION}/{test_f_name}'
     ), 'wrong lineage'
 
     test_subject = SubaruName(
-        artifact_uri='cadc:SUBARUPROC/SCLA_189.232+62.201.W-J-V.cat'
+        artifact_uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
     )
     assert test_subject.obs_id == 'SCLA_189.232+62.201'
     assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'
@@ -95,4 +96,4 @@ def test_storage_name():
     assert test_subject.obs_id == 'SUPA003743'
     assert test_subject.product_id == 'SUPA003743p'
     assert not test_subject.is_legacy
-    assert test_subject.file_uri == 'cadc:SUBARUPROC/SUPA003743p.fits.fz'
+    assert test_subject.file_uri == f'cadc:{COLLECTION}/SUPA003743p.fits.fz'

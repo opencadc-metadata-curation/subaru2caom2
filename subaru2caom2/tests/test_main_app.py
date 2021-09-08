@@ -69,9 +69,11 @@
 
 from mock import patch
 
+from cadcdata import FileInfo
 from subaru2caom2 import main_app, APPLICATION, COLLECTION, SubaruName
 from subaru2caom2 import PRODUCER
 from caom2pipe import astro_composable as ac
+from caom2pipe import client_composable as clc
 from caom2pipe import manage_composable as mc
 
 import logging
@@ -148,9 +150,10 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize('test_name', obs_id_list)
 
 
-@patch('caom2pipe.client_composable.get_cadc_meta_client_v')
-@patch('caom2utils.fits2caom2.CadcDataClient')
-def test_main_app(fits2_data_client_mock, client_mock, test_name):
+@patch('cadcutils.net.ws.WsCapabilities.get_access_url')
+@patch('caom2utils.data_util.StorageClientWrapper')
+def test_main_app(data_client_mock, access_mock, test_name):
+    access_mock.return_value = 'https://localhost'
     output_file = test_name.replace('expected', 'actual')
 
     if os.path.exists(output_file):
@@ -160,13 +163,10 @@ def test_main_app(fits2_data_client_mock, client_mock, test_name):
     local = _get_local(tn)
     lineage = _get_lineage(tn)
 
-    fits2_data_client_mock.return_value.get_file_info.side_effect = (
-        _get_file_info
-    )
-    client_mock.side_effect = _get_node_mock
+    data_client_mock.return_value.info.side_effect = _info
 
     sys.argv = (
-        f'{APPLICATION} --no_validate --local {local} --observation '
+        f'{APPLICATION} --debug --no_validate --local {local} --observation '
         f'{COLLECTION} {tn} -o {output_file} --plugin {PLUGIN} '
         f'--module {PLUGIN} --lineage {lineage}'
     ).split()
@@ -182,8 +182,8 @@ def test_main_app(fits2_data_client_mock, client_mock, test_name):
     # assert False  # cause I want to see logging messages
 
 
-def _get_file_info(archive, file_id):
-    return {'type': 'application/fits'}
+def _info(uri):
+    return FileInfo(id=uri, file_type='application/fits')
 
 
 def _get_local(entry):
@@ -199,10 +199,3 @@ def _get_lineage(entry):
             f'{storage_name.file_name}'
         )
     return result
-
-
-def _get_node_mock(file_uri, ignore):
-    file_name = file_uri.split('/')[-1]
-    fqn = f'{TEST_DATA_DIR}/{file_name}.header'
-    fits_header = open(fqn).read()
-    return ac.make_headers_from_string(fits_header)

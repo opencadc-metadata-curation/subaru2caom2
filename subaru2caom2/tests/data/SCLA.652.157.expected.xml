@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <caom2:Observation xmlns:caom2="http://www.opencadc.org/caom2/xml/v2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="caom2:DerivedObservation" caom2:id="fc33c247-fac6-423a-bd56-ef5b5fd0fa65" caom2:metaProducer="subaru2caom2/0.1.0">
-  <caom2:collection>SUBARUPROC</caom2:collection>
+  <caom2:collection>SUBARUCADC</caom2:collection>
   <caom2:observationID>SCLA.652.157</caom2:observationID>
   <caom2:metaRelease>2021-04-27T08:41:30.000</caom2:metaRelease>
   <caom2:algorithm>
@@ -56,7 +56,7 @@
       </caom2:metrics>
       <caom2:artifacts>
         <caom2:artifact caom2:id="24841e21-6b7a-487d-a169-e9f826939456" caom2:metaProducer="subaru2caom2/0.1.0">
-          <caom2:uri>cadc:SUBARUPROC/SCLA.652.157.W-J-VR.weight.fits.fz</caom2:uri>
+          <caom2:uri>cadc:SUBARUCADC/SCLA.652.157.W-J-VR.weight.fits.fz</caom2:uri>
           <caom2:productType>weight</caom2:productType>
           <caom2:releaseType>data</caom2:releaseType>
           <caom2:contentType>application/fits</caom2:contentType>
@@ -130,7 +130,7 @@
           </caom2:parts>
         </caom2:artifact>
         <caom2:artifact caom2:id="988d644f-9b22-4f72-9a9c-c89186b83023" caom2:metaProducer="subaru2caom2/0.1.0">
-          <caom2:uri>cadc:SUBARUPROC/SCLA.652.157.W-J-VR.fits</caom2:uri>
+          <caom2:uri>cadc:SUBARUCADC/SCLA.652.157.W-J-VR.fits</caom2:uri>
           <caom2:productType>science</caom2:productType>
           <caom2:releaseType>data</caom2:releaseType>
           <caom2:contentType>application/fits</caom2:contentType>
@@ -248,7 +248,7 @@
       </caom2:metrics>
       <caom2:artifacts>
         <caom2:artifact caom2:id="c8c6cc13-6aa7-4d80-865b-3d37254d2784" caom2:metaProducer="subaru2caom2/0.1.0">
-          <caom2:uri>cadc:SUBARUPROC/SCLA.652.157.W-C-RC.weight.fits.fz</caom2:uri>
+          <caom2:uri>cadc:SUBARUCADC/SCLA.652.157.W-C-RC.weight.fits.fz</caom2:uri>
           <caom2:productType>weight</caom2:productType>
           <caom2:releaseType>data</caom2:releaseType>
           <caom2:contentType>application/fits</caom2:contentType>
@@ -322,7 +322,7 @@
           </caom2:parts>
         </caom2:artifact>
         <caom2:artifact caom2:id="90cd32d8-87e8-4e1c-b068-153c540f43a5" caom2:metaProducer="subaru2caom2/0.1.0">
-          <caom2:uri>cadc:SUBARUPROC/SCLA.652.157.W-C-RC.fits</caom2:uri>
+          <caom2:uri>cadc:SUBARUCADC/SCLA.652.157.W-C-RC.fits</caom2:uri>
           <caom2:productType>science</caom2:productType>
           <caom2:releaseType>data</caom2:releaseType>
           <caom2:contentType>application/fits</caom2:contentType>
