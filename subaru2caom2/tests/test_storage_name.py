@@ -86,7 +86,7 @@ def test_storage_name():
     ), 'wrong lineage'
 
     test_subject = SubaruName(
-        artifact_uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
+        uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
     )
     assert test_subject.obs_id == 'SCLA_189.232+62.201'
     assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'

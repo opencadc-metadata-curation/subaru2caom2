@@ -260,17 +260,17 @@ class SubaruName(mc.StorageName):
 
     SUBARU_NAME_PATTERN = '*'
 
-    def __init__(self, file_name=None, artifact_uri=None, entry=None):
+    def __init__(self, file_name=None, uri=None, entry=None):
         if file_name is not None:
             self._file_name = file_name
             self.obs_id = self._get_obs_id()
-            uri = mc.build_uri(COLLECTION, file_name, 'cadc')
-            self._destination_uris = [uri]
-        if artifact_uri is not None:
-            scheme, path, file_name = mc.decompose_uri(artifact_uri)
+            artifact_uri = mc.build_uri(COLLECTION, file_name, 'cadc')
+            self._destination_uris = [artifact_uri]
+        if uri is not None:
+            scheme, path, file_name = mc.decompose_uri(uri)
             self._file_name = file_name
             self.obs_id = self._get_obs_id()
-            self._destination_uris = [artifact_uri]
+            self._destination_uris = [uri]
         self._scheme = PRODUCER
         self._collection = COLLECTION
         self._compression = ''
@@ -342,7 +342,7 @@ def accumulate_bp(bp, uri):
     # observation
     bp.set('Observation.metaProducer', meta_producer)
 
-    storage_name = SubaruName(artifact_uri=uri)
+    storage_name = SubaruName(uri=uri)
     bp.set('Observation.algorithm.name', 'Suprime-Cam Legacy Archive')
     bp.set('DerivedObservation.members', {})
 
@@ -450,7 +450,7 @@ def update(observation, **kwargs):
     uri = kwargs.get('uri')
     subaru_name = None
     if uri is not None:
-        subaru_name = SubaruName(artifact_uri=uri)
+        subaru_name = SubaruName(uri=uri)
     if fqn is not None:
         subaru_name = SubaruName(file_name=os.path.basename(fqn))
     if subaru_name is None:
