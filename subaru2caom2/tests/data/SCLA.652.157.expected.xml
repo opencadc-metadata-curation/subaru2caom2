@@ -35,20 +35,20 @@
         <caom2:version>2.38.0</caom2:version>
         <caom2:project>2010-2012 IAP/CNRS/UPMC</caom2:project>
         <caom2:producer>CADC</caom2:producer>
-        <caom2:reference>http://www.iap.fr</caom2:reference>
+        <caom2:reference>https://www.astromatic.net/</caom2:reference>
         <caom2:lastExecuted>2021-04-27T08:43:00.000</caom2:lastExecuted>
         <caom2:inputs>
-          <caom2:planeURI>caom:SUBARU/SUPA0039628/SUPA0039628</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0047705/SUPA0047705</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0039636/SUPA0039636</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0047704/SUPA0047704</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0047708/SUPA0047708</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0047712/SUPA0047712</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0047850/SUPA0047850</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0047849/SUPA0047849</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0039632/SUPA0039632</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0047709/SUPA0047709</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0047713/SUPA0047713</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0039628/SUPA0039628p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0047705/SUPA0047705p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0039636/SUPA0039636p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0047704/SUPA0047704p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0047708/SUPA0047708p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0047712/SUPA0047712p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0047850/SUPA0047850p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0047849/SUPA0047849p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0039632/SUPA0039632p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0047709/SUPA0047709p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0047713/SUPA0047713p</caom2:planeURI>
         </caom2:inputs>
       </caom2:provenance>
       <caom2:metrics>
@@ -234,13 +234,13 @@
         <caom2:version>2.38.0</caom2:version>
         <caom2:project>2010-2012 IAP/CNRS/UPMC</caom2:project>
         <caom2:producer>CADC</caom2:producer>
-        <caom2:reference>http://www.iap.fr</caom2:reference>
+        <caom2:reference>https://www.astromatic.net/</caom2:reference>
         <caom2:lastExecuted>2021-04-27T08:41:30.000</caom2:lastExecuted>
         <caom2:inputs>
-          <caom2:planeURI>caom:SUBARU/SUPA0023705/SUPA0023705</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0023699/SUPA0023699</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0023608/SUPA0023608</caom2:planeURI>
-          <caom2:planeURI>caom:SUBARU/SUPA0023616/SUPA0023616</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0023705/SUPA0023705p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0023699/SUPA0023699p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0023608/SUPA0023608p</caom2:planeURI>
+          <caom2:planeURI>caom:SUBARUCADC/SUPA0023616/SUPA0023616p</caom2:planeURI>
         </caom2:inputs>
       </caom2:provenance>
       <caom2:metrics>
@@ -417,20 +417,20 @@
     </caom2:plane>
   </caom2:planes>
   <caom2:members>
-    <caom2:observationURI>caom:SUBARU/SUPA0047709</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0047704</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0047850</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0039636</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0047705</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0023705</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0023699</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0047713</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0023616</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0047712</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0039632</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0047849</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0039628</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0047708</caom2:observationURI>
-    <caom2:observationURI>caom:SUBARU/SUPA0023608</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0047709</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0047704</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0047850</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0039636</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0047705</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0023705</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0023699</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0047713</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0023616</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0047712</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0039632</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0047849</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0039628</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0047708</caom2:observationURI>
+    <caom2:observationURI>caom:SUBARUCADC/SUPA0023608</caom2:observationURI>
   </caom2:members>
 </caom2:Observation>

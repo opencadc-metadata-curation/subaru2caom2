@@ -166,7 +166,7 @@ def test_main_app(data_client_mock, access_mock, test_name):
     data_client_mock.return_value.info.side_effect = _info
 
     sys.argv = (
-        f'{APPLICATION} --debug --no_validate --local {local} --observation '
+        f'{APPLICATION} --no_validate --local {local} --observation '
         f'{COLLECTION} {tn} -o {output_file} --plugin {PLUGIN} '
         f'--module {PLUGIN} --lineage {lineage}'
     ).split()

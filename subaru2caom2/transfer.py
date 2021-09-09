@@ -62,38 +62,7 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
-
-from subaru2caom2 import SubaruName, COLLECTION
-
-
-def test_is_valid():
-    assert SubaruName('anything').is_valid()
-
-
-def test_storage_name():
-    test_obs_id = 'SCLA_189.232+62.201'
-    test_f_id = f'{test_obs_id}.W-C-IC'
-    test_f_name = f'{test_f_id}.fits'
-    test_subject = SubaruName(file_name=test_f_name)
-    assert test_subject.obs_id == test_obs_id, 'wrong obs id'
-    assert test_subject.product_id == test_f_id, 'wrong product id'
-    assert (
-        test_subject.lineage == f'{test_f_id}/cadc:{COLLECTION}/{test_f_name}'
-    ), 'wrong lineage'
-
-    test_subject = SubaruName(
-        artifact_uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
-    )
-    assert test_subject.obs_id == 'SCLA_189.232+62.201'
-    assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'
-    assert test_subject.is_legacy
-
-    test_subject = SubaruName(file_name='SUPA0037434p.fits.fz')
-    assert test_subject.obs_id == 'SUPA0037434'
-    assert test_subject.product_id == 'SUPA0037434p'
-    assert not test_subject.is_legacy
-    assert test_subject.file_uri == f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'

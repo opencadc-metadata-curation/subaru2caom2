@@ -100,10 +100,10 @@ EXPTIME
 
 2. vos:sgwyn/suprime/proc/ : the calibrated science images, merged into .fz
 compressed MEFs. Not all images were calibrated.  Filenames are like
-SUPA000965p.fits.fz. Process = SCLA
+SUPA0000965p.fits.fz. Process = SCLA
 
 3. vos:sgwyn/suprime/weights/ : weight maps for the above, also as .fz
-compressed MEFs. Filenames like: SUPA000965p.weight.fits.fz
+compressed MEFs. Filenames like: SUPA0000965p.weight.fits.fz
 
 4. vos:sgwyn/suprime/stacks/ : contains stacked images, weight maps and
 catalogs. These are very similar to MegaPipe files. Filter is in the
@@ -118,12 +118,12 @@ From a CAOM perspective:
 
 1 observation SUPA0037434
   - raw plane  (calibrationLevel=1)
-    - 10 artifacts vos:sgwyn/suprime/images/SUPA003743[0123456789].fits.fz
+    - 10 artifacts vos:sgwyn/suprime/images/SUPA0037434[0123456789].fits.fz
       - 1 chunk per artifact
   - calibrated plane (calibrationLevel=2)
-    - 1 image artifact vos:sgwyn/suprime/proc/SUPA003743p.fits.fz
+    - 1 image artifact vos:sgwyn/suprime/proc/SUPA0037434p.fits.fz
       - 10 chunks per artifact
-    - 1 weight artifact vos:sgwyn/suprime/proc/SUPA003743p.weight.fits.fz
+    - 1 weight artifact vos:sgwyn/suprime/proc/SUPA0037434p.weight.fits.fz
 
 other examples
 SUPA0102090
@@ -284,9 +284,9 @@ class SubaruName(mc.StorageName):
     def _get_obs_id(self):
         if self.is_legacy:
             bits = self._file_name.split('.')
-            result = '.'.join(ii for ii in bits[:3])
+            result = '.'.join(kk for kk in bits[:3])
         else:
-            result = self._file_name[:10]
+            result = self._file_name[:11]
         return result
 
     def _get_product_id(self):
@@ -390,7 +390,10 @@ def accumulate_bp(bp, uri):
         bp.add_fits_attribute('Plane.provenance.project', 'SOFTAUTH')
         # I'd use this value, but it's not an URL
         # bp.add_fits_attribute('Plane.provenance.reference', 'SOFTINST')
-        bp.set('Plane.provenance.reference', 'http://www.iap.fr')
+        # SGw 7-09-21
+        # For the stacks (SCLA*) everything is https://www.astromatic.net.
+        # For the SUPA*p.fits, nothing is https://www.astromatic.net/
+        bp.set('Plane.provenance.reference', 'https://www.astromatic.net/')
         bp.clear('Plane.provenance.version')
         bp.add_fits_attribute('Plane.provenance.version', 'SOFTVERS')
     else:
@@ -472,7 +475,7 @@ def update(observation, **kwargs):
                     plane,
                     headers,
                     'HISTORY',
-                    'SUBARU',
+                    'SUBARUCADC',
                     _repair_history_provenance_value,
                     observation.observation_id,
                 )
@@ -561,6 +564,8 @@ def _update_plane_provenance_inputs(plane):
     :return:
     """
     if plane.provenance is not None:
+        # this behaviour is consistent with existing SUBARU raw records in
+        # CAOM2
         ignore, plane_uri = cc.make_plane_uri(
             plane.product_id.replace('p', '0'),
             plane.product_id.replace('p', 'X'),
@@ -577,16 +582,25 @@ def _repair_history_provenance_value(value, obs_id):
     # HISTORY  input image SUPA0010788
     # HISTORY  input image SUPA0010789
     # HISTORY  input image SUPA0010791
+    #
+    # SGw 20-07-21
+    # The inputs to the planes of the stacks are planes from the individual
+    # images which end in "p". Basically, I want people to be able to click
+    # on an input plane and be taken to the record for that plane. If that's
+    # what's happening already, that's fine.
+    #
+    # SGo - add a 'p' after the 7 digits that identify an observation.
     if 'input image' in str(value):
         for entry in value:
             if 'input image' in entry:
                 temp = str(entry).split('input image ')
-                prov_prod_id = temp[1].strip()
+                prov_file_id = f'{temp[1].strip()}p'
+                sn = SubaruName(file_name=prov_file_id)
                 # 0 - observation
                 # 1 - plane
-                # obs id is the same as the plane id for SimpleObservations
+                # product_ids for 'p' files need to be handled correctly
                 #
-                results.append([prov_prod_id, prov_prod_id])
+                results.append([sn.obs_id, sn.product_id])
     logging.debug(f'End _repair_history_provenance_value')
     return results
 
