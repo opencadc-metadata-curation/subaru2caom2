@@ -66,3 +66,35 @@
 #
 # ***********************************************************************
 #
+
+
+from caom2pipe import client_composable as clc
+from caom2pipe import manage_composable as mc
+from caom2pipe import transfer_composable as tc
+
+
+__all__ = ['VoTransferCheck']
+
+
+class VoTransferCheck(tc.VoFitsTransfer):
+
+    def __init__(self, vo_client, data_client):
+        super().__init__()
+        self._vo_client = vo_client
+        self._data_client = data_client
+
+    def post_store_check(self, source_fqn, dest_fqn):
+        """
+
+        :param source_fqn: VOSpace URI
+        :param dest_fqn: Artifact URI
+        :return: True raises mc.CadcException if the checksums do not
+            match.
+        """
+        dest_meta = self._data_client.info(dest_fqn)
+        source_meta = clc.vault_info(self._vo_client, source_fqn)
+        if dest_meta.md5sum != source_meta.md5sum:
+            raise mc.CadcException(
+                f'Transfer did not succeed for {source_fqn}.'
+            )
+        return True

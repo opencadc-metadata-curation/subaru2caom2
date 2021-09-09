@@ -94,12 +94,13 @@ import traceback
 
 from datetime import datetime
 
-from caom2pipe import client_composable as cc
+from caom2pipe import client_composable as clc
 from caom2pipe import data_source_composable as dsc
 from caom2pipe import manage_composable as mc
 from caom2pipe import name_builder_composable as nbc
 from caom2pipe import run_composable as rc
-from subaru2caom2 import APPLICATION, SubaruName
+from subaru2caom2 import APPLICATION, SubaruName, transfer
+from vos import Client
 
 
 META_VISITORS = []
@@ -114,12 +115,27 @@ def _run():
     :return 0 if successful, -1 if there's any sort of failure. Return status
         is used by airflow for task instance management and reporting.
     """
+    config = mc.Config()
+    config.get_executors()
+    clients = None
+    data_source = None
+    source_transfer = None
+    if mc.TaskType.STORE in config.task_types and not config.use_local_files:
+        vo_client = Client(vospace_certfile=config.proxy_fqn)
+        clients = clc.ClientCollection(config)
+        source_transfer = transfer.VoTransferCheck(
+            vo_client, clients.data_client
+        )
+        data_source = dsc.VaultDataSource(source_transfer.client, config)
     name_builder = nbc.GuessingBuilder(SubaruName)
     return rc.run_by_todo(
         name_builder=name_builder,
         command_name=APPLICATION,
         meta_visitors=META_VISITORS,
         data_visitors=DATA_VISITORS,
+        source=data_source,
+        store_transfer=source_transfer,
+        clients=clients,
     )
 
 
@@ -142,9 +158,11 @@ def _run_state():
     config = mc.Config()
     config.get_executors()
     builder = nbc.GuessingBuilder(SubaruName)
-    clients = cc.ClientCollection(config)
-    data_source = dsc.VaultListDirTimeBoxDataSource(
-        clients.data_client, config
+    source_client = Client(vospace_certfile=config.proxy_fqn)
+    clients = clc.ClientCollection(config)
+    data_source = dsc.VaultDataSource(source_client, config)
+    source_transfer = transfer.VoTransferCheck(
+        source_client, clients.data_client
     )
     state = mc.State(config.state_fqn)
     end_timestamp_s = state.bookmarks.get(SCLA_BOOKMARK).get(
@@ -159,6 +177,8 @@ def _run_state():
         data_visitors=DATA_VISITORS,
         end_time=end_timestamp_dt,
         source=data_source,
+        source_transfer=source_transfer,
+        clients=clients,
     )
 
 
