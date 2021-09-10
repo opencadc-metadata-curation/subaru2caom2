@@ -79,7 +79,7 @@ __all__ = ['VoTransferCheck']
 class VoTransferCheck(tc.VoFitsTransfer):
 
     def __init__(self, vo_client, data_client):
-        super().__init__()
+        super().__init__(vo_client)
         self._vo_client = vo_client
         self._data_client = data_client
 
