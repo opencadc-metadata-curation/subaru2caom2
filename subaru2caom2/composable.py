@@ -115,18 +115,42 @@ def _run():
     :return 0 if successful, -1 if there's any sort of failure. Return status
         is used by airflow for task instance management and reporting.
     """
+    name_builder = nbc.GuessingBuilder(SubaruName)
+    return rc.run_by_todo(
+        name_builder=name_builder,
+        command_name=APPLICATION,
+        meta_visitors=META_VISITORS,
+        data_visitors=DATA_VISITORS,
+    )
+
+
+def run():
+    """Wraps _run in exception handling, with sys.exit calls."""
+    try:
+        result = _run()
+        sys.exit(result)
+    except Exception as e:
+        logging.error(e)
+        tb = traceback.format_exc()
+        logging.debug(tb)
+        sys.exit(-1)
+
+
+def _run_remote():
+    """
+    Uses a VOSpace directory listing to identify the work to be done.
+
+    :return 0 if successful, -1 if there's any sort of failure. Return status
+        is used by airflow for task instance management and reporting.
+    """
     config = mc.Config()
     config.get_executors()
-    clients = None
-    data_source = None
-    source_transfer = None
-    if mc.TaskType.STORE in config.task_types and not config.use_local_files:
-        vo_client = Client(vospace_certfile=config.proxy_fqn)
-        clients = clc.ClientCollection(config)
-        source_transfer = transfer.VoTransferCheck(
-            vo_client, clients.data_client
-        )
-        data_source = dsc.VaultDataSource(source_transfer.client, config)
+    vo_client = Client(vospace_certfile=config.proxy_fqn)
+    clients = clc.ClientCollection(config)
+    source_transfer = transfer.VoTransferCheck(
+        vo_client, clients.data_client
+    )
+    data_source = dsc.VaultDataSource(source_transfer.client, config)
     name_builder = nbc.GuessingBuilder(SubaruName)
     return rc.run_by_todo(
         name_builder=name_builder,
@@ -139,10 +163,10 @@ def _run():
     )
 
 
-def run():
-    """Wraps _run in exception handling, with sys.exit calls."""
+def run_remote():
+    """Wraps _run_remote in exception handling, with sys.exit calls."""
     try:
-        result = _run()
+        result = _run_remote()
         sys.exit(result)
     except Exception as e:
         logging.error(e)
