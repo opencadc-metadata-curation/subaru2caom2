@@ -150,7 +150,7 @@ def _run_remote():
     source_transfer = transfer.VoTransferCheck(
         vo_client, clients.data_client
     )
-    data_source = dsc.VaultDataSource(source_transfer.client, config)
+    data_source = dsc.VaultDataSource(vo_client, config)
     name_builder = nbc.GuessingBuilder(SubaruName)
     return rc.run_by_todo(
         name_builder=name_builder,
