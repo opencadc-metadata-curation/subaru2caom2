@@ -1,6 +1,6 @@
 FROM opencadc/astropy:3.9-slim
 
-RUN apt-get update -y && apt-get dist-upgrade -y && \
+RUN apt-get update --no-install-recommends && \
     apt-get install -y \
         build-essential \
         git && \

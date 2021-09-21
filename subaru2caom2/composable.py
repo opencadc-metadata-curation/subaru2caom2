@@ -100,10 +100,11 @@ from caom2pipe import manage_composable as mc
 from caom2pipe import name_builder_composable as nbc
 from caom2pipe import run_composable as rc
 from subaru2caom2 import APPLICATION, SubaruName, transfer
+from subaru2caom2 import preview_augmentation
 from vos import Client
 
 
-META_VISITORS = []
+META_VISITORS = [preview_augmentation]
 DATA_VISITORS = []
 SCLA_BOOKMARK = 'scla_timestamp'
 
