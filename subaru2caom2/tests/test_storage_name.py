@@ -67,6 +67,7 @@
 # ***********************************************************************
 #
 
+from caom2pipe import name_builder_composable as nbc
 from subaru2caom2 import SubaruName, COLLECTION
 
 
@@ -102,3 +103,24 @@ def test_storage_name():
     assert test_subject.prev == 'SUPA0037434.gif'
     assert test_subject.prev_uri == f'cadc:{COLLECTION}/SUPA0037434.gif'
     assert test_subject.thumb_uri == f'cadc:{COLLECTION}/SUPA0037434_th.gif'
+    assert (
+        test_subject.source_names[0] == 'SUPA0037434p.fits.fz'
+    ), 'wrong source name'
+    assert (
+        test_subject.destination_uris[0] ==
+        f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
+    ), 'wrong destination uri'
+
+
+def test_builder():
+    test_uri = f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
+    name_builder = nbc.GuessingBuilder(SubaruName)
+    for entry in [
+        'vos:goliaths/subaru_test/SUPA0037434p.fits.fz',  # vos uri
+        '/tmp/SUPA0037434p.fits.fz',  # use_local_files: True
+        'SUPA0037434p.fits.fz',       # todo.txt
+        'cadc:SUBARUCADC/SUPA0037434p.fits.fz',  # storage uri
+    ]:
+        test_subject = name_builder.build(entry)
+        assert test_subject.destination_uris[0] == test_uri, 'destination'
+        assert test_subject.source_names[0] == entry, 'source'

@@ -270,7 +270,11 @@ class SubaruName(mc.StorageName):
             scheme, path, file_name = mc.decompose_uri(uri)
             self._file_name = file_name
             self.obs_id = self._get_obs_id()
-            self._destination_uris = [uri]
+            if scheme == PRODUCER:
+                self._destination_uris = [uri]
+            else:
+                artifact_uri = mc.build_uri(COLLECTION, file_name, 'cadc')
+                self._destination_uris = [artifact_uri]
         self.scheme = PRODUCER
         self._collection = COLLECTION
         self._compression = ''

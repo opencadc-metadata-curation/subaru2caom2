@@ -77,6 +77,7 @@ data_source_extensions:
   - .fits.fz
   - .fits
   - .cat
+storage_inventory_resource_id: ivo://cadc.nrc.ca/uvic/minoc
 # how to control the work that gets done
 # possible values are:
 # - scrape - read the headers, write out the xml - kind of a test mode
