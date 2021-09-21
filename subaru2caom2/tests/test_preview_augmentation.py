@@ -62,43 +62,39 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
 
-from subaru2caom2 import SubaruName, COLLECTION
+from mock import patch, Mock
+
+from caom2pipe import manage_composable as mc
+from subaru2caom2 import preview_augmentation, main_app
+import test_main_app
 
 
-def test_is_valid():
-    assert SubaruName('anything').is_valid()
-
-
-def test_storage_name():
-    test_obs_id = 'SCLA_189.232+62.201'
-    test_f_id = f'{test_obs_id}.W-C-IC'
-    test_f_name = f'{test_f_id}.fits'
-    test_subject = SubaruName(file_name=test_f_name)
-    assert test_subject.obs_id == test_obs_id, 'wrong obs id'
-    assert test_subject.product_id == test_f_id, 'wrong product id'
-    assert (
-        test_subject.lineage == f'{test_f_id}/cadc:{COLLECTION}/{test_f_name}'
-    ), 'wrong lineage'
-
-    test_subject = SubaruName(
-        uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
+def test_visit():
+    test_obs = mc.read_obs_from_file(
+        f'{test_main_app.TEST_DATA_DIR}/SUPA0037434.expected.xml'
     )
-    assert test_subject.obs_id == 'SCLA_189.232+62.201'
-    assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'
-    assert test_subject.is_legacy
-
-    test_subject = SubaruName(
+    test_storage_name = main_app.SubaruName(
         file_name='SUPA0037434p.fits.fz', entry='SUPA0037434p.fits.fz'
     )
-    assert test_subject.obs_id == 'SUPA0037434'
-    assert test_subject.product_id == 'SUPA0037434p'
-    assert not test_subject.is_legacy
-    assert test_subject.file_uri == f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    assert test_subject.prev == 'SUPA0037434.gif'
-    assert test_subject.prev_uri == f'cadc:{COLLECTION}/SUPA0037434.gif'
-    assert test_subject.thumb_uri == f'cadc:{COLLECTION}/SUPA0037434_th.gif'
+    test_plane = test_obs.planes[test_storage_name.product_id]
+    assert len(test_plane.artifacts) == 1, 'initial conditions'
+    kwargs = {
+        'working_directory': test_main_app.TEST_DATA_DIR,
+        'cadc_client': None,
+        'storage_name': test_storage_name,
+        'observable': Mock(),
+    }
+    test_result = preview_augmentation.visit(test_obs, **kwargs)
+    assert test_result is not None, 'expect a result'
+    assert test_result.get('artifacts') == 2, 'wrong artifact count'
+    assert (
+        test_storage_name.thumb_uri in test_plane.artifacts.keys()
+    ), 'expected thumbnail artifact'
+    assert (
+            test_storage_name.prev_uri in test_plane.artifacts.keys()
+    ), 'expected preview artifact'

@@ -271,7 +271,7 @@ class SubaruName(mc.StorageName):
             self._file_name = file_name
             self.obs_id = self._get_obs_id()
             self._destination_uris = [uri]
-        self._scheme = PRODUCER
+        self.scheme = PRODUCER
         self._collection = COLLECTION
         self._compression = ''
         self._entry = entry
@@ -306,7 +306,7 @@ class SubaruName(mc.StorageName):
         return mc.build_uri(
             archive=self._collection,
             file_name=self._file_name,
-            scheme=self._scheme,
+            scheme=self.scheme,
         )
 
     @property
@@ -315,6 +315,14 @@ class SubaruName(mc.StorageName):
 
     def is_valid(self):
         return True
+
+    @property
+    def prev(self):
+        return f'{self._obs_id}.gif'
+
+    @property
+    def thumb(self):
+        return f'{self._obs_id}_th.gif'
 
     @property
     def product_id(self):
