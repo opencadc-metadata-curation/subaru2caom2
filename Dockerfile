@@ -30,6 +30,7 @@ ARG PIPE_REPO=opencadc
 # until Storage Inventory support is released to pypi
 RUN git clone https://github.com/opencadc/cadctools.git && \
     cd cadctools && \
+    pip install ./cadcutils && \
     pip install ./cadcdata && \
     cd ..
 

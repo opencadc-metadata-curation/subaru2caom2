@@ -116,12 +116,24 @@ def _run():
     :return 0 if successful, -1 if there's any sort of failure. Return status
         is used by airflow for task instance management and reporting.
     """
+    config = mc.Config()
+    config.get_executors()
+    clients = None
+    source_transfer = None
+    if mc.TaskType.STORE in config.task_types:
+        vo_client = Client(vospace_certfile=config.proxy_fqn)
+        clients = clc.ClientCollection(config)
+        source_transfer = transfer.VoTransferCheck(
+            vo_client, clients.data_client
+        )
     name_builder = nbc.GuessingBuilder(SubaruName)
     return rc.run_by_todo(
         name_builder=name_builder,
         command_name=APPLICATION,
         meta_visitors=META_VISITORS,
         data_visitors=DATA_VISITORS,
+        store_transfer=source_transfer,
+        clients=clients,
     )
 
 
