@@ -3,7 +3,7 @@
 # ******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
 # *************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
 #
-#  (c) 2020.                            (c) 2020.
+#  (c) 2021.                            (c) 2021.
 #  Government of Canada                 Gouvernement du Canada
 #  National Research Council            Conseil national de recherches
 #  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -67,48 +67,60 @@
 # ***********************************************************************
 #
 
-import os
-import test_main_app
-
-from mock import Mock, patch
-
-from blank2caom2 import composable, BlankName, COLLECTION
+from caom2pipe import name_builder_composable as nbc
+from subaru2caom2 import SubaruName, COLLECTION
 
 
-def test_run_by_state():
-    pass
+def test_is_valid():
+    assert SubaruName('anything').is_valid()
 
 
-@patch('caom2pipe.execute_composable.OrganizeExecutes.do_one')
-def test_run(run_mock):
-    test_obs_id = 'TEST_OBS_ID'
-    test_f_id = 'test_file_id'
+def test_storage_name():
+    test_obs_id = 'SCLA_189.232+62.201'
+    test_f_id = f'{test_obs_id}.W-C-IC'
     test_f_name = f'{test_f_id}.fits'
-    getcwd_orig = os.getcwd
-    os.getcwd = Mock(return_value=test_main_app.TEST_DATA_DIR)
-    try:
-        # execution
-        composable._run()
-        assert run_mock.called, 'should have been called'
-        args, kwargs = run_mock.call_args
-        test_storage = args[0]
-        assert isinstance(
-            test_storage, BlankName
-        ), type(test_storage)
-        assert test_storage.obs_id == test_obs_id, 'wrong obs id'
-        assert test_storage.file_name == test_f_name, 'wrong file name'
-        assert (
-            test_storage.fname_on_disk == test_f_name
-        ), 'wrong fname on disk'
-        assert test_storage.url is None, 'wrong url'
-        assert (
-            test_storage.lineage ==  
-            f'{test_f_id}/ad:{COLLECTION}/{test_f_name}'
-        ), 'wrong lineage'
-    finally:
-        os.getcwd = getcwd_orig
-        # clean up the summary report text file
-        fqn = f'{test_main_app.TEST_DATA_DIR}/data_report.txt'
-        if os.path.exists(fqn):
-            os.unlink(fqn)
+    test_subject = SubaruName(file_name=test_f_name)
+    assert test_subject.obs_id == test_obs_id, 'wrong obs id'
+    assert test_subject.product_id == test_f_id, 'wrong product id'
+    assert (
+        test_subject.lineage == f'{test_f_id}/cadc:{COLLECTION}/{test_f_name}'
+    ), 'wrong lineage'
 
+    test_subject = SubaruName(
+        uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
+    )
+    assert test_subject.obs_id == 'SCLA_189.232+62.201'
+    assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'
+    assert test_subject.is_legacy
+
+    test_subject = SubaruName(
+        file_name='SUPA0037434p.fits.fz', entry='SUPA0037434p.fits.fz'
+    )
+    assert test_subject.obs_id == 'SUPA0037434'
+    assert test_subject.product_id == 'SUPA0037434p'
+    assert not test_subject.is_legacy
+    assert test_subject.file_uri == f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
+    assert test_subject.prev == 'SUPA0037434.gif'
+    assert test_subject.prev_uri == f'cadc:{COLLECTION}/SUPA0037434.gif'
+    assert test_subject.thumb_uri == f'cadc:{COLLECTION}/SUPA0037434_th.gif'
+    assert (
+        test_subject.source_names[0] == 'SUPA0037434p.fits.fz'
+    ), 'wrong source name'
+    assert (
+        test_subject.destination_uris[0] ==
+        f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
+    ), 'wrong destination uri'
+
+
+def test_builder():
+    test_uri = f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
+    name_builder = nbc.GuessingBuilder(SubaruName)
+    for entry in [
+        'vos:goliaths/subaru_test/SUPA0037434p.fits.fz',  # vos uri
+        '/tmp/SUPA0037434p.fits.fz',  # use_local_files: True
+        'SUPA0037434p.fits.fz',       # todo.txt
+        'cadc:SUBARUCADC/SUPA0037434p.fits.fz',  # storage uri
+    ]:
+        test_subject = name_builder.build(entry)
+        assert test_subject.destination_uris[0] == test_uri, 'destination'
+        assert test_subject.source_names[0] == entry, 'source'

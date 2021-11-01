@@ -1,0 +1,6 @@
+working_directory: /usr/src/app/subaru2caom2/subaru2caom2/tests/data
+proxy_file_name: test_proxy.pem
+data_sources:
+  - vos:goliaths/wrong
+data_source_extensions:
+  - '.fits.fz'

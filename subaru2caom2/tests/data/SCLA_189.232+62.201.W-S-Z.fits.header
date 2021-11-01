@@ -1,0 +1,278 @@
+SIMPLE  =                    T / This is a FITS file                            
+BITPIX  =                  -32 /                                                
+NAXIS   =                    2 /                                                
+NAXIS1  =                12764 / NUMBER OF ELEMENTS ALONG THIS AXIS             
+NAXIS2  =                12065 / NUMBER OF ELEMENTS ALONG THIS AXIS             
+EXTEND  =                    T / This file may contain FITS extensions          
+EQUINOX =   2.000000000000E+03 / Mean equinox                                   
+MJD-OBS =   5.273600000000E+04 / Modified Julian date at start                  
+RADESYS = 'ICRS    '           / Astrometric system                             
+CTYPE1  = 'RA---TAN'           / WCS projection type for this axis              
+CUNIT1  = 'degree  '           / Axis unit                                      
+CRVAL1  =   1.892316000000E+02 / World coordinate on this axis                  
+CRPIX1  =   6.382000000000E+03 / Reference pixel on this axis                   
+CD1_1   =  -5.555556000000E-05 / Linear projection matrix                       
+CD1_2   =   0.000000000000E+00 / Linear projection matrix                       
+CTYPE2  = 'DEC--TAN'           / WCS projection type for this axis              
+CUNIT2  = 'degree  '           / Axis unit                                      
+CRVAL2  =   6.220090000000E+01 / World coordinate on this axis                  
+CRPIX2  =   6.032500000000E+03 / Reference pixel on this axis                   
+CD2_1   =   0.000000000000E+00 / Linear projection matrix                       
+CD2_2   =   5.555556000000E-05 / Linear projection matrix                       
+EXPTIME =   4.614000000000E+04 / Maximum equivalent exposure time (s)           
+GAIN    =   6.551471003625E+03 / Maximum equivalent gain (e-/ADU)               
+SATURATE=   1.794919708726E+03 / Saturation Level (ADU)                         
+COMMENT                                                                         
+SOFTNAME= 'SWarp   '           / The software that processed those data         
+SOFTVERS= '2.38.0  '           / Version of the software                        
+SOFTDATE= '2018-03-06'         / Release date of the software                   
+SOFTAUTH= '2010-2012 IAP/CNRS/UPMC' / Maintainer of the software                
+SOFTINST= 'IAP  http://www.iap.fr' / Institute                                  
+COMMENT                                                                         
+AUTHOR  = 'gwyn    '           / Who ran the software                           
+ORIGIN  = 'cc-arbutus-918abc6a-d311-4efa-9d38-491920cbe40a.novalocal' / Where it
+DATE    = '2021-04-26T07:24:23' / When it was started (GMT)                     
+COMBINET= 'CLIPPED '           / COMBINE_TYPE config parameter for SWarp        
+COMMENT                                                                         
+COMMENT  Propagated FITS keywords                                               
+OBJECT  = 'HDF     '                                                            
+COMMENT                                                                         
+COMMENT  Axis-dependent config parameters                                       
+RESAMPT1= 'LANCZOS3'           / RESAMPLING_TYPE config parameter               
+CENTERT1= 'ALL     '           / CENTER_TYPE config parameter                   
+PSCALET1= 'MEDIAN  '           / PIXELSCALE_TYPE config parameter               
+RESAMPT2= 'LANCZOS3'           / RESAMPLING_TYPE config parameter               
+CENTERT2= 'ALL     '           / CENTER_TYPE config parameter                   
+PSCALET2= 'MEDIAN  '           / PIXELSCALE_TYPE config parameter               
+HISTORY  input image SUPA0020248                                                
+HISTORY  input image SUPA0020249                                                
+HISTORY  input image SUPA0020251                                                
+HISTORY  input image SUPA0020252                                                
+HISTORY  input image SUPA0020253                                                
+HISTORY  input image SUPA0020254                                                
+HISTORY  input image SUPA0020256                                                
+HISTORY  input image SUPA0020257                                                
+HISTORY  input image SUPA0020258                                                
+HISTORY  input image SUPA0020259                                                
+HISTORY  input image SUPA0020260                                                
+HISTORY  input image SUPA0020261                                                
+HISTORY  input image SUPA0020262                                                
+HISTORY  input image SUPA0020263                                                
+HISTORY  input image SUPA0020264                                                
+HISTORY  input image SUPA0020265                                                
+HISTORY  input image SUPA0020266                                                
+HISTORY  input image SUPA0020267                                                
+HISTORY  input image SUPA0028911                                                
+HISTORY  input image SUPA0028912                                                
+HISTORY  input image SUPA0028916                                                
+HISTORY  input image SUPA0028918                                                
+HISTORY  input image SUPA0028919                                                
+HISTORY  input image SUPA0028920                                                
+HISTORY  input image SUPA0028921                                                
+HISTORY  input image SUPA0028922                                                
+HISTORY  input image SUPA0028923                                                
+HISTORY  input image SUPA0028924                                                
+HISTORY  input image SUPA0028925                                                
+HISTORY  input image SUPA0028927                                                
+HISTORY  input image SUPA0028928                                                
+HISTORY  input image SUPA0028933                                                
+HISTORY  input image SUPA0028934                                                
+HISTORY  input image SUPA0028935                                                
+HISTORY  input image SUPA0028936                                                
+HISTORY  input image SUPA0028939                                                
+HISTORY  input image SUPA0028940                                                
+HISTORY  input image SUPA0028941                                                
+HISTORY  input image SUPA0028942                                                
+HISTORY  input image SUPA0028943                                                
+HISTORY  input image SUPA0028944                                                
+HISTORY  input image SUPA0028945                                                
+HISTORY  input image SUPA0028946                                                
+HISTORY  input image SUPA0028947                                                
+HISTORY  input image SUPA0028948                                                
+HISTORY  input image SUPA0028949                                                
+HISTORY  input image SUPA0028950                                                
+HISTORY  input image SUPA0028951                                                
+HISTORY  input image SUPA0028952                                                
+HISTORY  input image SUPA0028953                                                
+HISTORY  input image SUPA0046731                                                
+HISTORY  input image SUPA0046732                                                
+HISTORY  input image SUPA0046733                                                
+HISTORY  input image SUPA0046734                                                
+HISTORY  input image SUPA0046735                                                
+HISTORY  input image SUPA0046736                                                
+HISTORY  input image SUPA0046737                                                
+HISTORY  input image SUPA0046738                                                
+HISTORY  input image SUPA0046739                                                
+HISTORY  input image SUPA0046740                                                
+HISTORY  input image SUPA0046741                                                
+HISTORY  input image SUPA0046742                                                
+HISTORY  input image SUPA0046743                                                
+HISTORY  input image SUPA0046744                                                
+HISTORY  input image SUPA0046745                                                
+HISTORY  input image SUPA0046747                                                
+HISTORY  input image SUPA0046748                                                
+HISTORY  input image SUPA0046749                                                
+HISTORY  input image SUPA0046750                                                
+HISTORY  input image SUPA0046751                                                
+HISTORY  input image SUPA0046843                                                
+HISTORY  input image SUPA0046844                                                
+HISTORY  input image SUPA0046845                                                
+HISTORY  input image SUPA0046846                                                
+HISTORY  input image SUPA0046847                                                
+HISTORY  input image SUPA0046848                                                
+HISTORY  input image SUPA0046849                                                
+HISTORY  input image SUPA0046850                                                
+HISTORY  input image SUPA0046851                                                
+HISTORY  input image SUPA0046852                                                
+HISTORY  input image SUPA0046853                                                
+HISTORY  input image SUPA0046854                                                
+HISTORY  input image SUPA0046855                                                
+HISTORY  input image SUPA0046856                                                
+HISTORY  input image SUPA0046857                                                
+HISTORY  input image SUPA0046858                                                
+HISTORY  input image SUPA0046859                                                
+HISTORY  input image SUPA0046860                                                
+HISTORY  input image SUPA0046861                                                
+HISTORY  input image SUPA0046862                                                
+HISTORY  input image SUPA0046863                                                
+HISTORY  input image SUPA0046864                                                
+HISTORY  input image SUPA0046865                                                
+HISTORY  input image SUPA0046866                                                
+HISTORY  input image SUPA0053192                                                
+HISTORY  input image SUPA0053194                                                
+HISTORY  input image SUPA0053195                                                
+HISTORY  input image SUPA0053196                                                
+HISTORY  input image SUPA0053197                                                
+HISTORY  input image SUPA0053198                                                
+HISTORY  input image SUPA0053199                                                
+HISTORY  input image SUPA0053200                                                
+HISTORY  input image SUPA0053201                                                
+HISTORY  input image SUPA0053202                                                
+HISTORY  input image SUPA0053205                                                
+HISTORY  input image SUPA0053206                                                
+HISTORY  input image SUPA0053207                                                
+HISTORY  input image SUPA0053208                                                
+HISTORY  input image SUPA0053209                                                
+HISTORY  input image SUPA0053210                                                
+HISTORY  input image SUPA0053211                                                
+HISTORY  input image SUPA0053212                                                
+HISTORY  input image SUPA0053213                                                
+HISTORY  input image SUPA0053214                                                
+HISTORY  input image SUPA0053215                                                
+HISTORY  input image SUPA0053216                                                
+HISTORY  input image SUPA0053217                                                
+HISTORY  input image SUPA0053218                                                
+HISTORY  input image SUPA0053219                                                
+HISTORY  input image SUPA0053220                                                
+HISTORY  input image SUPA0053221                                                
+HISTORY  input image SUPA0053222                                                
+HISTORY  input image SUPA0053223                                                
+HISTORY  input image SUPA0053224                                                
+HISTORY  input image SUPA0053226                                                
+HISTORY  input image SUPA0053227                                                
+HISTORY  input image SUPA0053228                                                
+HISTORY  input image SUPA0053229                                                
+HISTORY  input image SUPA0053230                                                
+HISTORY  input image SUPA0053231                                                
+HISTORY  input image SUPA0053232                                                
+HISTORY  input image SUPA0053234                                                
+HISTORY  input image SUPA0053236                                                
+HISTORY  input image SUPA0053237                                                
+HISTORY  input image SUPA0053238                                                
+HISTORY  input image SUPA0053240                                                
+HISTORY  input image SUPA0053242                                                
+HISTORY  input image SUPA0053243                                                
+HISTORY  input image SUPA0053244                                                
+HISTORY  input image SUPA0053245                                                
+HISTORY  input image SUPA0053246                                                
+HISTORY  input image SUPA0053247                                                
+HISTORY  input image SUPA0053248                                                
+HISTORY  input image SUPA0053249                                                
+HISTORY  input image SUPA0053250                                                
+HISTORY  input image SUPA0053251                                                
+HISTORY  input image SUPA0053252                                                
+HISTORY  input image SUPA0053254                                                
+HISTORY  input image SUPA0053255                                                
+HISTORY  input image SUPA0053256                                                
+HISTORY  input image SUPA0053257                                                
+HISTORY  input image SUPA0053258                                                
+HISTORY  input image SUPA0053259                                                
+HISTORY  input image SUPA0053260                                                
+HISTORY  input image SUPA0053261                                                
+HISTORY  input image SUPA0053262                                                
+HISTORY  input image SUPA0053263                                                
+HISTORY  input image SUPA0053264                                                
+HISTORY  input image SUPA0053265                                                
+HISTORY  input image SUPA0053266                                                
+HISTORY  input image SUPA0053267                                                
+HISTORY  input image SUPA0107679                                                
+HISTORY  input image SUPA0107681                                                
+HISTORY  input image SUPA0107682                                                
+HISTORY  input image SUPA0107683                                                
+HISTORY  input image SUPA0107684                                                
+HISTORY  input image SUPA0107685                                                
+HISTORY  input image SUPA0107694                                                
+HISTORY  input image SUPA0107696                                                
+HISTORY  input image SUPA0107697                                                
+HISTORY  input image SUPA0110392                                                
+HISTORY  input image SUPA0110393                                                
+HISTORY  input image SUPA0110394                                                
+HISTORY  input image SUPA0110395                                                
+HISTORY  input image SUPA0110396                                                
+HISTORY  input image SUPA0110397                                                
+HISTORY  input image SUPA0110398                                                
+HISTORY  input image SUPA0110399                                                
+HISTORY  input image SUPA0110400                                                
+HISTORY  input image SUPA0110401                                                
+HISTORY  input image SUPA0110402                                                
+HISTORY  input image SUPA0110403                                                
+HISTORY  input image SUPA0110404                                                
+HISTORY  input image SUPA0110405                                                
+HISTORY  input image SUPA0110406                                                
+HISTORY  input image SUPA0110407                                                
+HISTORY  input image SUPA0119086                                                
+HISTORY  input image SUPA0119087                                                
+HISTORY  input image SUPA0119088                                                
+HISTORY  input image SUPA0119089                                                
+HISTORY  input image SUPA0119090                                                
+HISTORY  input image SUPA0119091                                                
+HISTORY  input image SUPA0119092                                                
+HISTORY  input image SUPA0119093                                                
+HISTORY  input image SUPA0119094                                                
+HISTORY  input image SUPA0119095                                                
+HISTORY  input image SUPA0119096                                                
+HISTORY  input image SUPA0119097                                                
+HISTORY  input image SUPA0119098                                                
+HISTORY  input image SUPA0119099                                                
+HISTORY  input image SUPA0119100                                                
+HISTORY  input image SUPA0119177                                                
+HISTORY  input image SUPA0119178                                                
+HISTORY  input image SUPA0119179                                                
+HISTORY  input image SUPA0119180                                                
+HISTORY  input image SUPA0119181                                                
+HISTORY  input image SUPA0119182                                                
+HISTORY  input image SUPA0119183                                                
+HISTORY  input image SUPA0119184                                                
+HISTORY  input image SUPA0119185                                                
+HISTORY  input image SUPA0119186                                                
+HISTORY  input image SUPA0119187                                                
+HISTORY  input image SUPA0119188                                                
+HISTORY  input image SUPA0119189                                                
+HISTORY  input image SUPA0119190                                                
+HISTORY  input image SUPA0119191                                                
+HISTORY  input image SUPA0119192                                                
+HISTORY  input image SUPA0119193                                                
+HISTORY  input image SUPA0119194                                                
+HISTORY  input image SUPA0119195                                                
+HISTORY  input image SUPA0119196                                                
+HISTORY  input image SUPA0119197                                                
+HISTORY  input image SUPA0119198                                                
+HISTORY  input image SUPA0119199                                                
+HISTORY  input image SUPA0119200                                                
+HISTORY  input image SUPA0119201                                                
+FILTER01= 'W-S-Z+  '                                                            
+IQFINAL =                0.936 / Image quality (seeing) in arcsec               
+ML_50DET=                26.89 / 50% detection limit                            
+ML_5SIGA=                26.04 / 5-sigma limit (MAG_AUTO)                       
+ML_5SIG2=                26.52 / 5-sigma limit (MAG_APER 2 arcsec diameter)     
+END                                                                             

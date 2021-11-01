@@ -3,7 +3,7 @@
 # ******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
 # *************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
 #
-#  (c) 2019.                            (c) 2019.
+#  (c) 2021.                            (c) 2021.
 #  Government of Canada                 Gouvernement du Canada
 #  National Research Council            Conseil national de recherches
 #  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -62,12 +62,84 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
-from blank2caom2 import BlankName
+
+from PIL import Image
+
+from os.path import exists, join
+
+from caom2 import ReleaseType, ProductType
+from caom2pipe import client_composable as clc
+from caom2pipe import manage_composable as mc
+from vos import Client
 
 
-def test_is_valid():
-    assert BlankName('anything').is_valid()
+class SubaruPreviewVisitor(mc.PreviewVisitor):
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            archive='SUBARUCADC',
+            release_type=ReleaseType.META,
+            mime_type='image/gif',
+            **kwargs,
+        )
+        self._preview_fqn = join(self._working_dir, self._storage_name.prev)
+        self._thumb_fqn = join(self._working_dir, self._storage_name.thumb)
+        self._vo_client = None
+        if self._cadc_client is not None:
+            self._vo_client = Client(
+                vospace_certfile='/usr/src/app/cadcproxy.pem'
+            )
+
+    def _gen_thumbnail(self):
+        self._logger.debug(
+            f'Generating thumbnail for file {self._science_fqn}.'
+        )
+        image = Image.open(self._preview_fqn)
+        image.thumbnail((256, 256))
+        image.save(self._thumb_fqn)
+        count = 1
+        return count
+
+    def generate_plots(self, obs_id):
+        count = 0
+        preview_vo_fqn = f'vos:sgwyn/suprime/preview/{self._storage_name.prev}'
+        if self._vo_client is not None:
+            vos_meta = clc.vault_info(self._vo_client, preview_vo_fqn)
+            if vos_meta is not None or vos_meta.size > 0:
+                self._vo_client.copy(
+                    preview_vo_fqn, self._preview_fqn, send_md5=True
+                )
+            else:
+                self._logger.warning(
+                    f'Not retrieving preview {preview_vo_fqn} because '
+                    f'metadata is {vos_meta}.'
+                )
+        if exists(self._preview_fqn):
+            self.add_preview(
+                self._storage_name.prev_uri,
+                self._storage_name.prev,
+                ProductType.PREVIEW,
+                ReleaseType.DATA,
+            )
+            self.add_to_delete(self._preview_fqn)
+            count = 1
+            count += self._gen_thumbnail()
+            if count == 2:
+                self.add_preview(
+                    self._storage_name.thumb_uri,
+                    self._storage_name.thumb,
+                    ProductType.THUMBNAIL,
+                    ReleaseType.META,
+                )
+                self.add_to_delete(self._thumb_fqn)
+        return count
+
+
+def visit(observation, **kwargs):
+    return SubaruPreviewVisitor(**kwargs).visit(observation)
+
+

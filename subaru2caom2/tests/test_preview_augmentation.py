@@ -3,7 +3,7 @@
 # ******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
 # *************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
 #
-#  (c) 2019.                            (c) 2019.
+#  (c) 2021.                            (c) 2021.
 #  Government of Canada                 Gouvernement du Canada
 #  National Research Council            Conseil national de recherches
 #  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -62,71 +62,39 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
 
-from mock import patch
+from mock import patch, Mock
 
-from blank2caom2 import main_app, APPLICATION, COLLECTION, BlankName
-from blank2caom2 import ARCHIVE
 from caom2pipe import manage_composable as mc
-
-import glob
-import os
-import sys
-
-THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
-PLUGIN = os.path.join(os.path.dirname(THIS_DIR), 'main_app.py')
+from subaru2caom2 import preview_augmentation, main_app
+import test_main_app
 
 
-def pytest_generate_tests(metafunc):
-    obs_id_list = glob.glob(f'{TEST_DATA_DIR}/*.fits.header')
-    metafunc.parametrize('test_name', obs_id_list)
-
-
-@patch('caom2utils.fits2caom2.CadcDataClient')
-def test_main_app(data_client_mock, test_name):
-    basename = os.path.basename(test_name)
-    extension = '.fz'
-    file_name = basename.replace('.header', extension)
-    blank_name = BlankName(file_name=file_name)
-    obs_path = f'{TEST_DATA_DIR}/{blank_name.obs_id}.expected.xml'
-    output_file = f'{TEST_DATA_DIR}/{basename}.actual.xml'
-
-    if os.path.exists(output_file):
-        os.unlink(output_file)
-
-    local = _get_local(basename)
-
-    data_client_mock.return_value.get_file_info.side_effect = _get_file_info
-
-    sys.argv = (
-        f'{APPLICATION} --no_validate '
-        f'--local {local} --observation {COLLECTION} {blank_name.obs_id} -o '
-        f'{output_file} --plugin {PLUGIN} --module {PLUGIN} --lineage '
-        f'{blank_name.lineage}'
-    ).split()
-    print(sys.argv)
-    try:
-        main_app.to_caom2()
-    except Exception as e:
-        import logging
-        import traceback
-        logging.error(traceback.format_exc())
-
-    compare_result = mc.compare_observations(output_file, obs_path)
-    if compare_result is not None:
-        raise AssertionError(compare_result)
-    # assert False  # cause I want to see logging messages
-
-
-def _get_file_info(archive, file_id):
-    return {'type': 'application/fits'}
-
-
-def _get_local(obs_id):
-    return f'{TEST_DATA_DIR}/{obs_id}.fits.header'
-
+def test_visit():
+    test_obs = mc.read_obs_from_file(
+        f'{test_main_app.TEST_DATA_DIR}/SUPA0037434.expected.xml'
+    )
+    test_storage_name = main_app.SubaruName(
+        file_name='SUPA0037434p.fits.fz', entry='SUPA0037434p.fits.fz'
+    )
+    test_plane = test_obs.planes[test_storage_name.product_id]
+    assert len(test_plane.artifacts) == 1, 'initial conditions'
+    kwargs = {
+        'working_directory': test_main_app.TEST_DATA_DIR,
+        'cadc_client': None,
+        'storage_name': test_storage_name,
+        'observable': Mock(),
+    }
+    test_result = preview_augmentation.visit(test_obs, **kwargs)
+    assert test_result is not None, 'expect a result'
+    assert test_result.get('artifacts') == 2, 'wrong artifact count'
+    assert (
+        test_storage_name.thumb_uri in test_plane.artifacts.keys()
+    ), 'expected thumbnail artifact'
+    assert (
+            test_storage_name.prev_uri in test_plane.artifacts.keys()
+    ), 'expected preview artifact'
