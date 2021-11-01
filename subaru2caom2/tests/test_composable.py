@@ -79,11 +79,11 @@ def test_run_by_state():
     pass
 
 
+@patch('caom2pipe.client_composable.ClientCollection')
 @patch('caom2pipe.execute_composable.OrganizeExecutes.do_one')
-def test_run(run_mock):
-    test_obs_id = 'TEST_OBS_ID'
-    test_f_id = 'test_file_id'
-    test_f_name = f'{test_f_id}.fits'
+def test_run(run_mock, clients_mock):
+    test_obs_id = 'SUPA0014258'
+    test_f_name = 'SUPA0014258p.weight.fits.fz'
     getcwd_orig = os.getcwd
     os.getcwd = Mock(return_value=test_main_app.TEST_DATA_DIR)
     try:
@@ -92,19 +92,63 @@ def test_run(run_mock):
         assert run_mock.called, 'should have been called'
         args, kwargs = run_mock.call_args
         test_storage = args[0]
-        assert isinstance(
-            test_storage, SubaruName), type(test_storage)
+        assert isinstance(test_storage, SubaruName), type(test_storage)
         assert test_storage.obs_id == test_obs_id, 'wrong obs id'
         assert test_storage.file_name == test_f_name, 'wrong file name'
-        assert test_storage.fname_on_disk == test_f_name, \
-            'wrong fname on disk'
-        assert test_storage.url is None, 'wrong url'
-        assert test_storage.lineage == \
-            f'{test_f_id}/ad:{COLLECTION}/{test_f_name}', 'wrong lineage'
+        assert (
+            test_storage.lineage
+            == f'SUPA0014258p/cadc:{COLLECTION}/{test_f_name}'
+        ), 'wrong lineage'
     finally:
         os.getcwd = getcwd_orig
-        # clean up the summary report text file
-        fqn = f'{test_main_app.TEST_DATA_DIR}/data_report.txt'
+        _cleanup()
+
+
+@patch('subaru2caom2.composable.Client', autospec=True)
+@patch('caom2pipe.client_composable.ClientCollection', autospec=True)
+@patch('caom2pipe.execute_composable.OrganizeExecutes.do_one', autospec=True)
+def test_run_remote(run_mock, clients_mock, vo_client_mock):
+    test_obs_id = 'SUPA0014258'
+    test_f_name = 'SUPA0014258p.weight.fits.fz'
+    vo_client_mock.return_value.listdir.return_value = [test_f_name]
+
+    node1 = type('', (), {})()
+    node1.props = {
+        'date': '2020-09-15 19:55:03.067000+00:00',
+        'size': 14,
+    }
+    node1.uri = f'vos://cadc.nrc.ca!vault/goliaths/moc/{test_f_name}'
+    vo_client_mock.return_value.get_node.return_value = node1
+
+    getcwd_orig = os.getcwd
+    os.getcwd = Mock(return_value=test_main_app.TEST_DATA_DIR)
+    try:
+        # execution
+        composable._run_remote()
+        assert run_mock.called, 'should have been called'
+        args, kwargs = run_mock.call_args
+        test_storage = args[1]
+        assert isinstance(test_storage, SubaruName), type(test_storage)
+        assert test_storage.obs_id == test_obs_id, 'wrong obs id'
+        assert test_storage.file_name == test_f_name, 'wrong file name'
+        assert (
+                test_storage.lineage
+                == f'SUPA0014258p/cadc:{COLLECTION}/{test_f_name}'
+        ), 'wrong lineage'
+    finally:
+        os.getcwd = getcwd_orig
+        _cleanup()
+
+
+def _cleanup():
+    # clean up the files created as a by-product of a run
+    for f_name in [
+        'data_report.txt',
+        'failure_log.txt',
+        'rejected.yml',
+        'retries.txt',
+        'success_log.txt',
+    ]:
+        fqn = os.path.join(test_main_app.TEST_DATA_DIR, f_name)
         if os.path.exists(fqn):
             os.unlink(fqn)
-

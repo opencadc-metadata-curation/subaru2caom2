@@ -62,65 +62,84 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
 
-from caom2pipe import name_builder_composable as nbc
-from subaru2caom2 import SubaruName, COLLECTION
+from PIL import Image
+
+from os.path import exists, join
+
+from caom2 import ReleaseType, ProductType
+from caom2pipe import client_composable as clc
+from caom2pipe import manage_composable as mc
+from vos import Client
 
 
-def test_is_valid():
-    assert SubaruName('anything').is_valid()
+class SubaruPreviewVisitor(mc.PreviewVisitor):
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            archive='SUBARUCADC',
+            release_type=ReleaseType.META,
+            mime_type='image/gif',
+            **kwargs,
+        )
+        self._preview_fqn = join(self._working_dir, self._storage_name.prev)
+        self._thumb_fqn = join(self._working_dir, self._storage_name.thumb)
+        self._vo_client = None
+        if self._cadc_client is not None:
+            self._vo_client = Client(
+                vospace_certfile='/usr/src/app/cadcproxy.pem'
+            )
+
+    def _gen_thumbnail(self):
+        self._logger.debug(
+            f'Generating thumbnail for file {self._science_fqn}.'
+        )
+        image = Image.open(self._preview_fqn)
+        image.thumbnail((256, 256))
+        image.save(self._thumb_fqn)
+        count = 1
+        return count
+
+    def generate_plots(self, obs_id):
+        count = 0
+        preview_vo_fqn = f'vos:sgwyn/suprime/preview/{self._storage_name.prev}'
+        if self._vo_client is not None:
+            vos_meta = clc.vault_info(self._vo_client, preview_vo_fqn)
+            if vos_meta is not None or vos_meta.size > 0:
+                self._vo_client.copy(
+                    preview_vo_fqn, self._preview_fqn, send_md5=True
+                )
+            else:
+                self._logger.warning(
+                    f'Not retrieving preview {preview_vo_fqn} because '
+                    f'metadata is {vos_meta}.'
+                )
+        if exists(self._preview_fqn):
+            self.add_preview(
+                self._storage_name.prev_uri,
+                self._storage_name.prev,
+                ProductType.PREVIEW,
+                ReleaseType.DATA,
+            )
+            self.add_to_delete(self._preview_fqn)
+            count = 1
+            count += self._gen_thumbnail()
+            if count == 2:
+                self.add_preview(
+                    self._storage_name.thumb_uri,
+                    self._storage_name.thumb,
+                    ProductType.THUMBNAIL,
+                    ReleaseType.META,
+                )
+                self.add_to_delete(self._thumb_fqn)
+        return count
 
 
-def test_storage_name():
-    test_obs_id = 'SCLA_189.232+62.201'
-    test_f_id = f'{test_obs_id}.W-C-IC'
-    test_f_name = f'{test_f_id}.fits'
-    test_subject = SubaruName(file_name=test_f_name)
-    assert test_subject.obs_id == test_obs_id, 'wrong obs id'
-    assert test_subject.product_id == test_f_id, 'wrong product id'
-    assert (
-        test_subject.lineage == f'{test_f_id}/cadc:{COLLECTION}/{test_f_name}'
-    ), 'wrong lineage'
-
-    test_subject = SubaruName(
-        uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
-    )
-    assert test_subject.obs_id == 'SCLA_189.232+62.201'
-    assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'
-    assert test_subject.is_legacy
-
-    test_subject = SubaruName(
-        file_name='SUPA0037434p.fits.fz', entry='SUPA0037434p.fits.fz'
-    )
-    assert test_subject.obs_id == 'SUPA0037434'
-    assert test_subject.product_id == 'SUPA0037434p'
-    assert not test_subject.is_legacy
-    assert test_subject.file_uri == f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    assert test_subject.prev == 'SUPA0037434.gif'
-    assert test_subject.prev_uri == f'cadc:{COLLECTION}/SUPA0037434.gif'
-    assert test_subject.thumb_uri == f'cadc:{COLLECTION}/SUPA0037434_th.gif'
-    assert (
-        test_subject.source_names[0] == 'SUPA0037434p.fits.fz'
-    ), 'wrong source name'
-    assert (
-        test_subject.destination_uris[0] ==
-        f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    ), 'wrong destination uri'
+def visit(observation, **kwargs):
+    return SubaruPreviewVisitor(**kwargs).visit(observation)
 
 
-def test_builder():
-    test_uri = f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    name_builder = nbc.GuessingBuilder(SubaruName)
-    for entry in [
-        'vos:goliaths/subaru_test/SUPA0037434p.fits.fz',  # vos uri
-        '/tmp/SUPA0037434p.fits.fz',  # use_local_files: True
-        'SUPA0037434p.fits.fz',       # todo.txt
-        'cadc:SUBARUCADC/SUPA0037434p.fits.fz',  # storage uri
-    ]:
-        test_subject = name_builder.build(entry)
-        assert test_subject.destination_uris[0] == test_uri, 'destination'
-        assert test_subject.source_names[0] == entry, 'source'

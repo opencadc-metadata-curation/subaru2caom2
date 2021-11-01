@@ -62,65 +62,38 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
 
-from caom2pipe import name_builder_composable as nbc
-from subaru2caom2 import SubaruName, COLLECTION
+
+from caom2pipe import client_composable as clc
+from caom2pipe import manage_composable as mc
+from caom2pipe import transfer_composable as tc
 
 
-def test_is_valid():
-    assert SubaruName('anything').is_valid()
+__all__ = ['VoTransferCheck']
 
 
-def test_storage_name():
-    test_obs_id = 'SCLA_189.232+62.201'
-    test_f_id = f'{test_obs_id}.W-C-IC'
-    test_f_name = f'{test_f_id}.fits'
-    test_subject = SubaruName(file_name=test_f_name)
-    assert test_subject.obs_id == test_obs_id, 'wrong obs id'
-    assert test_subject.product_id == test_f_id, 'wrong product id'
-    assert (
-        test_subject.lineage == f'{test_f_id}/cadc:{COLLECTION}/{test_f_name}'
-    ), 'wrong lineage'
+class VoTransferCheck(tc.VoFitsTransfer):
 
-    test_subject = SubaruName(
-        uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
-    )
-    assert test_subject.obs_id == 'SCLA_189.232+62.201'
-    assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'
-    assert test_subject.is_legacy
+    def __init__(self, vo_client, data_client):
+        super().__init__(vo_client)
+        self._data_client = data_client
 
-    test_subject = SubaruName(
-        file_name='SUPA0037434p.fits.fz', entry='SUPA0037434p.fits.fz'
-    )
-    assert test_subject.obs_id == 'SUPA0037434'
-    assert test_subject.product_id == 'SUPA0037434p'
-    assert not test_subject.is_legacy
-    assert test_subject.file_uri == f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    assert test_subject.prev == 'SUPA0037434.gif'
-    assert test_subject.prev_uri == f'cadc:{COLLECTION}/SUPA0037434.gif'
-    assert test_subject.thumb_uri == f'cadc:{COLLECTION}/SUPA0037434_th.gif'
-    assert (
-        test_subject.source_names[0] == 'SUPA0037434p.fits.fz'
-    ), 'wrong source name'
-    assert (
-        test_subject.destination_uris[0] ==
-        f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    ), 'wrong destination uri'
+    def post_store_check(self, source_fqn, dest_fqn):
+        """
 
-
-def test_builder():
-    test_uri = f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    name_builder = nbc.GuessingBuilder(SubaruName)
-    for entry in [
-        'vos:goliaths/subaru_test/SUPA0037434p.fits.fz',  # vos uri
-        '/tmp/SUPA0037434p.fits.fz',  # use_local_files: True
-        'SUPA0037434p.fits.fz',       # todo.txt
-        'cadc:SUBARUCADC/SUPA0037434p.fits.fz',  # storage uri
-    ]:
-        test_subject = name_builder.build(entry)
-        assert test_subject.destination_uris[0] == test_uri, 'destination'
-        assert test_subject.source_names[0] == entry, 'source'
+        :param source_fqn: VOSpace URI
+        :param dest_fqn: Artifact URI
+        :return: True raises mc.CadcException if the checksums do not
+            match.
+        """
+        dest_meta = self._data_client.info(dest_fqn)
+        source_meta = clc.vault_info(self._vo_client, source_fqn)
+        if dest_meta.md5sum != source_meta.md5sum:
+            raise mc.CadcException(
+                f'Transfer did not succeed for {source_fqn}.'
+            )
+        return True

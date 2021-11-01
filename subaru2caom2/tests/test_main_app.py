@@ -69,61 +69,137 @@
 
 from mock import patch
 
+from cadcdata import FileInfo
 from subaru2caom2 import main_app, APPLICATION, COLLECTION, SubaruName
-from subaru2caom2 import ARCHIVE
+from subaru2caom2 import PRODUCER
+from caom2pipe import astro_composable as ac
+from caom2pipe import client_composable as clc
 from caom2pipe import manage_composable as mc
 
-import glob
+import logging
 import os
 import sys
+import traceback
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
 PLUGIN = os.path.join(os.path.dirname(THIS_DIR), 'main_app.py')
 
+LOOKUP = {
+    'SCLA_189.232+62.201': [
+        'SCLA_189.232+62.201.W-C-IC.cat',
+        'SCLA_189.232+62.201.W-S-I.fits',
+        'SCLA_189.232+62.201.W-C-IC.fits',
+        'SCLA_189.232+62.201.W-S-I.weight.fits.fz',
+        'SCLA_189.232+62.201.W-C-IC.weight.fits.fz',
+        'SCLA_189.232+62.201.W-S-Z.cat',
+        'SCLA_189.232+62.201.W-J-V.cat',
+        'SCLA_189.232+62.201.W-S-Z.fits',
+        'SCLA_189.232+62.201.W-J-V.fits',
+        'SCLA_189.232+62.201.W-S-Z.weight.fits.fz',
+        'SCLA_189.232+62.201.W-J-V.weight.fits.fz',
+        'SCLA_189.232+62.201.W-S-I.cat',
+    ],
+    'SCLA.652.157': [
+        'SCLA.652.157.W-J-VR.weight.fits.fz',
+        'SCLA.652.157.W-J-VR.fits',
+        'SCLA.652.157.W-C-RC.weight.fits.fz',
+        'SCLA.652.157.W-C-RC.fits',
+    ],
+    'SCLA.396.170': [
+        'SCLA.396.170.W-C-RC.weight.fits.fz',
+        'SCLA.396.170.W-C-RC.fits',
+    ],
+    'SCLA.285.288': [
+        'SCLA.285.288.W-S-Z+.weight.fits.fz',
+        'SCLA.285.288.W-S-Z+.fits',
+        'SCLA.285.288.W-S-R+.weight.fits.fz',
+        'SCLA.285.288.W-S-R+.fits',
+        'SCLA.285.288.W-S-I+.weight.fits.fz',
+        'SCLA.285.288.W-S-I+.fits',
+        'SCLA.285.288.W-S-G+.weight.fits.fz',
+        'SCLA.285.288.W-S-G+.fits',
+        'SCLA.285.288.W-J-V.weight.fits.fz',
+        'SCLA.285.288.W-J-V.fits',
+        'SCLA.285.288.N-B-L921.weight.fits.fz',
+        'SCLA.285.288.N-B-L921.fits',
+    ],
+    'SCLA.134.129': [
+        'SCLA.134.129.W-J-VR.weight.fits.fz',
+        'SCLA.134.129.W-J-VR.fits',
+    ],
+    'SUPA0037434': [
+        'SUPA0037434p.fits.fz',
+    ],
+    'SUPA0102090': [
+        'SUPA0102090p.fits.fz',
+    ],
+    'SUPA0122144': [
+        'SUPA0122144p.fits.fz',
+    ],
+    # 'SUPA0142581': [
+    #     'SUPA0142581p.fits.fz',
+    # ],
+}
+
 
 def pytest_generate_tests(metafunc):
-    obs_id_list = glob.glob(f'{TEST_DATA_DIR}/derived/*.header')
+    obs_id_list = [
+        f'{TEST_DATA_DIR}/{ii}.expected.xml' for ii in LOOKUP.keys()
+    ]
     metafunc.parametrize('test_name', obs_id_list)
 
 
-@patch('caom2utils.fits2caom2.CadcDataClient')
-def test_main_app(data_client_mock, test_name):
-    basename = os.path.basename(test_name)
-    subaru_name = SubaruName(file_name=basename.replace('.header', ''))
-    obs_path = f'{TEST_DATA_DIR}/derived/{subaru_name.obs_id}.expected.xml'
-    output_file = f'{TEST_DATA_DIR}/derived/{subaru_name.obs_id}.actual.xml'
+@patch('caom2utils.data_util.get_local_headers_from_fits')
+@patch('cadcutils.net.ws.WsCapabilities.get_access_url')
+@patch('caom2utils.data_util.StorageClientWrapper')
+def test_main_app(
+    data_client_mock, access_mock, local_headers_mock, test_name
+):
+    access_mock.return_value = 'https://localhost'
+    local_headers_mock.side_effect = ac.make_headers_from_file
+    output_file = test_name.replace('expected', 'actual')
 
     if os.path.exists(output_file):
         os.unlink(output_file)
 
-    local = _get_local(subaru_name.file_name)
+    tn = os.path.basename(test_name).replace('.expected.xml', '')
+    local = _get_local(tn)
+    lineage = _get_lineage(tn)
 
-    data_client_mock.return_value.get_file_info.side_effect = _get_file_info
+    data_client_mock.return_value.info.side_effect = _info
 
     sys.argv = (
-        f'{APPLICATION} --no_validate '
-        f'--local {local} --observation {COLLECTION} {subaru_name.obs_id} -o '
-        f'{output_file} --plugin {PLUGIN} --module {PLUGIN} --lineage '
-        f'{subaru_name.lineage}'
-     ).split()
+        f'{APPLICATION} --no_validate --local {local} --observation '
+        f'{COLLECTION} {tn} -o {output_file} --plugin {PLUGIN} '
+        f'--module {PLUGIN} --lineage {lineage}'
+    ).split()
     print(sys.argv)
     try:
         main_app.to_caom2()
     except Exception as e:
-        import logging
-        import traceback
         logging.error(traceback.format_exc())
 
-    compare_result = mc.compare_observations(output_file, obs_path)
+    compare_result = mc.compare_observations(output_file, test_name)
     if compare_result is not None:
         raise AssertionError(compare_result)
     # assert False  # cause I want to see logging messages
 
 
-def _get_file_info(archive, file_id):
-    return {'type': 'application/fits'}
+def _info(uri):
+    return FileInfo(id=uri, file_type='application/fits')
 
 
 def _get_local(entry):
-    return f'{TEST_DATA_DIR}/derived/{entry}.header'
+    return ' '.join(f'{TEST_DATA_DIR}/{ii}.header' for ii in LOOKUP.get(entry))
+
+
+def _get_lineage(entry):
+    result = ''
+    for ii in LOOKUP.get(entry):
+        storage_name = SubaruName(file_name=ii)
+        result = (
+            f'{result} {storage_name.product_id}/{PRODUCER}:{COLLECTION}/'
+            f'{storage_name.file_name}'
+        )
+    return result
