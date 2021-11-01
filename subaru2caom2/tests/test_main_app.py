@@ -150,10 +150,14 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize('test_name', obs_id_list)
 
 
+@patch('caom2utils.data_util.get_local_headers_from_fits')
 @patch('cadcutils.net.ws.WsCapabilities.get_access_url')
 @patch('caom2utils.data_util.StorageClientWrapper')
-def test_main_app(data_client_mock, access_mock, test_name):
+def test_main_app(
+    data_client_mock, access_mock, local_headers_mock, test_name
+):
     access_mock.return_value = 'https://localhost'
+    local_headers_mock.side_effect = ac.make_headers_from_file
     output_file = test_name.replace('expected', 'actual')
 
     if os.path.exists(output_file):
