@@ -171,8 +171,9 @@ import os
 import sys
 import traceback
 
+from cadcutils.net import Subject
 from caom2 import Observation, DataProductType, CalibrationLevel
-from caom2 import ProductType, DerivedObservation
+from caom2 import ProductType
 from caom2utils import ObsBlueprint, get_gen_proc_arg_parser, gen_proc
 from caom2utils import data_util
 from caom2pipe import astro_composable as ac
@@ -246,6 +247,8 @@ filter_cache = ac.FilterMetadataCache(
     cache=FILTER_LOOKUP,
     connected=False,
 )
+
+vo_client = None
 
 
 class SubaruName(mc.StorageName):
@@ -555,10 +558,19 @@ def _update_observation_metadata(obs, headers, subaru_name, fqn):
     )
     # headers is not None => .cat files
     if headers is not None and len(headers) > 1 and not subaru_name.is_legacy:
+        if fqn is None:
+            # assume default file locations and service end-points
+            subject = Subject(certificate='/usr/src/app/cadcproxy.pem')
+            client = data_util.StorageClientWrapper(
+                subject,
+                resource_id='ivo://cadc.nrc.ca/uvic/minoc'
+            )
+            unmodified_headers = client.get_head(subaru_name.file_uri)
+        else:
+            unmodified_headers = data_util.get_local_file_headers(fqn)
         module = importlib.import_module(__name__)
         bp = ObsBlueprint(module=module)
         accumulate_bp(bp, subaru_name.file_uri)
-        unmodified_headers = data_util.get_local_file_headers(fqn)
         tc.add_headers_to_obs_by_blueprint(
             obs,
             unmodified_headers[1:],
