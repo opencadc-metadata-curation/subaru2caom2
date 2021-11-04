@@ -109,7 +109,7 @@ class SubaruPreviewVisitor(mc.PreviewVisitor):
         preview_vo_fqn = f'vos:sgwyn/suprime/preview/{self._storage_name.prev}'
         if self._vo_client is not None:
             vos_meta = clc.vault_info(self._vo_client, preview_vo_fqn)
-            if vos_meta is not None or vos_meta.size > 0:
+            if vos_meta is not None and vos_meta.size > 0:
                 self._vo_client.copy(
                     preview_vo_fqn, self._preview_fqn, send_md5=True
                 )
@@ -141,5 +141,3 @@ class SubaruPreviewVisitor(mc.PreviewVisitor):
 
 def visit(observation, **kwargs):
     return SubaruPreviewVisitor(**kwargs).visit(observation)
-
-
