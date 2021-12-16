@@ -62,77 +62,69 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
 
-from caom2pipe import name_builder_composable as nbc
-from subaru2caom2 import SubaruName, COLLECTION
+from logging import getLogger
+from caom2 import SimpleObservation, DerivedObservation, Algorithm
+from caom2utils import ObsBlueprint, GenericParser, FitsParser
+from subaru2caom2 import main_app
 
 
-def test_is_valid():
-    assert SubaruName('anything').is_valid()
+class Fits2caom2Visitor:
+    def __init__(self, observation, **kwargs):
+        self._observation = observation
+        self._storage_name = kwargs.get('storage_name')
+        self._metadata_reader = kwargs.get('metadata_reader')
+        self._dump_config = False
+        self._logger = getLogger(self.__class__.__name__)
+
+    def visit(self):
+        for uri, file_info in self._metadata_reader.file_info.items():
+            headers = self._metadata_reader.headers.get(uri)
+            telescope_data = main_app.Telescope(uri, headers)
+            blueprint = ObsBlueprint(instantiated_class=telescope_data)
+            telescope_data.accumulate_bp(blueprint, self._storage_name)
+
+            if len(headers) == 0:
+                parser = GenericParser(blueprint, uri)
+            else:
+                parser = FitsParser(headers, blueprint, uri)
+                parser.logging_name = uri
+
+            if self._dump_config:
+                print(f'Blueprint for {uri}: {blueprint}')
+
+            if self._observation is None:
+                if blueprint._get('DerivedObservation.members') is None:
+                    self._logger.debug('Build a SimpleObservation')
+                    self._observation = SimpleObservation(
+                        collection=self._storage_name.collection,
+                        observation_id=self._storage_name.obs_id,
+                        algorithm=Algorithm('exposure'),
+                    )
+                else:
+                    self._logger.debug('Build a DerivedObservation')
+                    self._observation = DerivedObservation(
+                        collection=self._storage_name.collection,
+                        observation_id=self._storage_name.obs_id,
+                        algorithm=Algorithm('composite'),
+                    )
+
+            parser.augment_observation(
+                observation=self._observation,
+                artifact_uri=uri,
+                product_id=self._storage_name.product_id,
+            )
+
+            self._observation = telescope_data.update(
+                self._observation, self._storage_name, file_info
+            )
+        return self._observation
 
 
-def test_storage_name():
-    test_obs_id = 'SCLA_189.232+62.201'
-    test_f_id = f'{test_obs_id}.W-C-IC'
-    test_f_name = f'{test_f_id}.fits'
-    test_subject = SubaruName(file_name=test_f_name)
-    assert test_subject.obs_id == test_obs_id, 'wrong obs id'
-    assert test_subject.product_id == test_f_id, 'wrong product id'
-    assert (
-        test_subject.lineage == f'{test_f_id}/cadc:{COLLECTION}/{test_f_name}'
-    ), 'wrong lineage'
-
-    test_subject = SubaruName(
-        uri=f'cadc:{COLLECTION}/SCLA_189.232+62.201.W-J-V.cat'
-    )
-    assert test_subject.obs_id == 'SCLA_189.232+62.201'
-    assert test_subject.product_id == 'SCLA_189.232+62.201.W-J-V'
-    assert test_subject.is_legacy
-
-    test_subject = SubaruName(
-        file_name='SUPA0037434p.fits.fz', entry='SUPA0037434p.fits.fz'
-    )
-    assert test_subject.obs_id == 'SUPA0037434'
-    assert test_subject.product_id == 'SUPA0037434p'
-    assert not test_subject.is_legacy
-    assert test_subject.file_uri == f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    assert test_subject.prev == 'SUPA0037434.gif'
-    assert test_subject.prev_uri == f'cadc:{COLLECTION}/SUPA0037434.gif'
-    assert test_subject.thumb_uri == f'cadc:{COLLECTION}/SUPA0037434_th.gif'
-    assert (
-        test_subject.source_names[0] == 'SUPA0037434p.fits.fz'
-    ), 'wrong source name'
-    assert (
-        test_subject.destination_uris[0] ==
-        f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    ), 'wrong destination uri'
-
-
-def test_builder():
-    test_uri = f'cadc:{COLLECTION}/SUPA0037434p.fits.fz'
-    name_builder = nbc.GuessingBuilder(SubaruName)
-    for entry in [
-        'vos:goliaths/subaru_test/SUPA0037434p.fits.fz',  # vos uri
-        '/tmp/SUPA0037434p.fits.fz',  # use_local_files: True
-        'SUPA0037434p.fits.fz',       # todo.txt
-        'cadc:SUBARUCADC/SUPA0037434p.fits.fz',  # storage uri
-    ]:
-        test_subject = name_builder.build(entry)
-        assert test_subject.destination_uris[0] == test_uri, 'destination'
-        assert test_subject.source_names[0] == entry, 'source'
-
-
-def test_case():
-    for uri in [
-        'cadc:SUBARUCADC/SUPA0017978p.fits.fz',
-        'cadc:SUBARUCADC/SUPA0017978p.weight.fits.fz',
-    ]:
-        test_subject = SubaruName(uri=uri)
-        assert test_subject.obs_id == 'SUPA0017978', f'wrong obs id {uri}'
-        assert (
-            test_subject.product_id == 'SUPA0017978p'
-        ), f'wrong product id {uri}'
+def visit(observation, **kwargs):
+    s = Fits2caom2Visitor(observation, **kwargs)
+    return s.visit()
