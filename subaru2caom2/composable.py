@@ -98,6 +98,7 @@ from caom2pipe import client_composable as clc
 from caom2pipe import data_source_composable as dsc
 from caom2pipe import manage_composable as mc
 from caom2pipe import name_builder_composable as nbc
+from caom2pipe import reader_composable as rdc
 from caom2pipe import run_composable as rc
 from subaru2caom2 import APPLICATION, SubaruName, transfer
 from subaru2caom2 import preview_augmentation
@@ -129,7 +130,6 @@ def _run():
     name_builder = nbc.GuessingBuilder(SubaruName)
     return rc.run_by_todo(
         name_builder=name_builder,
-        command_name=APPLICATION,
         meta_visitors=META_VISITORS,
         data_visitors=DATA_VISITORS,
         store_transfer=source_transfer,
@@ -165,14 +165,15 @@ def _run_remote():
     )
     data_source = dsc.VaultDataSource(vo_client, config)
     name_builder = nbc.GuessingBuilder(SubaruName)
+    reader = rdc.VaultReader(vo_client)
     return rc.run_by_todo(
         name_builder=name_builder,
-        command_name=APPLICATION,
         meta_visitors=META_VISITORS,
         data_visitors=DATA_VISITORS,
         source=data_source,
         store_transfer=source_transfer,
         clients=clients,
+        metadata_reader=reader,
     )
 
 

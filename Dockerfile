@@ -26,12 +26,20 @@ ARG OPENCADC_BRANCH=master
 ARG OPENCADC_REPO=opencadc
 ARG PIPE_BRANCH=master
 ARG PIPE_REPO=opencadc
+ARG VOS_BRANCH=master
+ARG VOS_REPO=opencadc
 
 # until Storage Inventory support is released to pypi
 RUN git clone https://github.com/opencadc/cadctools.git && \
     cd cadctools && \
     pip install ./cadcutils && \
     pip install ./cadcdata && \
+    cd ..
+
+RUN git clone https://github.com/${VOS_REPO}/vostools.git && \
+    cd vostools && \
+    git checkout ${VOS_BRANCH} && \
+    pip install ./vos && \
     cd ..
 
 RUN git clone https://github.com/${CAOM2_REPO}/caom2tools.git && \

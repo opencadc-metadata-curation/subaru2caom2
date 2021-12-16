@@ -118,6 +118,8 @@ def test_run_remote(run_mock, clients_mock, vo_client_mock):
         'size': 14,
     }
     node1.uri = f'vos://cadc.nrc.ca!vault/goliaths/moc/{test_f_name}'
+    node1.type = 'vos:DataNoe'
+    node1.node_list = [node1]
     vo_client_mock.return_value.get_node.return_value = node1
 
     getcwd_orig = os.getcwd
