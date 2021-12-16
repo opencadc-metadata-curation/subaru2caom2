@@ -106,6 +106,11 @@ class SubaruPreviewVisitor(mc.PreviewVisitor):
 
     def generate_plots(self, obs_id):
         count = 0
+        if not self._storage_name.file_uri.endswith('p.fits.fz'):
+            self._logger.info(
+                f'Skip preview generation for {self._storage_name.file_uri}.'
+            )
+            return 0
         preview_vo_fqn = f'vos:sgwyn/suprime/preview/{self._storage_name.prev}'
         if self._vo_client is not None:
             vos_meta = clc.vault_info(self._vo_client, preview_vo_fqn)
