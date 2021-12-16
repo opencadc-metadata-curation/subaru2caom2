@@ -124,3 +124,15 @@ def test_builder():
         test_subject = name_builder.build(entry)
         assert test_subject.destination_uris[0] == test_uri, 'destination'
         assert test_subject.source_names[0] == entry, 'source'
+
+
+def test_case():
+    for uri in [
+        'cadc:SUBARUCADC/SUPA0017978p.fits.fz',
+        'cadc:SUBARUCADC/SUPA0017978p.weight.fits.fz',
+    ]:
+        test_subject = SubaruName(uri=uri)
+        assert test_subject.obs_id == 'SUPA0017978', f'wrong obs id {uri}'
+        assert (
+            test_subject.product_id == 'SUPA0017978p'
+        ), f'wrong product id {uri}'
