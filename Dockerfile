@@ -52,4 +52,7 @@ RUN pip install git+https://github.com/${PIPE_REPO}/caom2pipe@${PIPE_BRANCH}#egg
   
 RUN pip install git+https://github.com/${OPENCADC_REPO}/subaru2caom2@${OPENCADC_BRANCH}#egg=subaru2caom2
 
+RUN useradd --create-home --shell /bin/bash cadcops
+USER cadcops
+
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
