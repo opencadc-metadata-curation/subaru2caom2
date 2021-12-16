@@ -91,7 +91,6 @@ def test_visit():
     }
     test_result = preview_augmentation.visit(test_obs, **kwargs)
     assert test_result is not None, 'expect a result'
-    assert test_result.get('artifacts') == 2, 'wrong artifact count'
     assert (
         test_storage_name.thumb_uri in test_plane.artifacts.keys()
     ), 'expected thumbnail artifact'
