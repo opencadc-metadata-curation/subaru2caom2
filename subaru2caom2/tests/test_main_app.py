@@ -139,6 +139,7 @@ LOOKUP = {
         'SUPA0122144p.fits.fz',
     ],
     'SUPA0017978': ['SUPA0017978p.weight.fits.fz', 'SUPA0017978p.fits.fz'],
+    'SCLA.258.182': ['SCLA.258.182.W-J-B.fits'],
 }
 
 

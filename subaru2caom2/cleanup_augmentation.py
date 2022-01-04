@@ -62,87 +62,37 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
 
-import os
-import test_main_app
+import logging
 
-from mock import Mock, patch
-
-from subaru2caom2 import composable, SubaruName, COLLECTION
+from caom2 import Observation
+from caom2pipe import manage_composable as mc
 
 
-def test_run_by_state():
-    pass
+def visit(observation, **kwargs):
+    mc.check_param(observation, Observation)
+    delete_list = []
+    for plane in observation.planes.values():
+        if plane.product_id == observation.observation_id:
+            # 04-01-22 - SGw - don't ingest /images. The Japanese want raw
+            # data to be available only via Japanese sites.
+            delete_list.append(plane.product_id)
 
+    count = 0
+    for product_id in delete_list:
+        observation.planes.pop(product_id)
+        logging.info(
+            f'Removing plane {product_id} from {observation.observation_id}'
+        )
+        count += 1
 
-@patch('caom2pipe.client_composable.ClientCollection')
-@patch('caom2pipe.execute_composable.OrganizeExecutes.do_one')
-def test_run(run_mock, clients_mock):
-    test_obs_id = 'SUPA0014258'
-    test_f_name = 'SUPA0014258p.weight.fits.fz'
-    getcwd_orig = os.getcwd
-    os.getcwd = Mock(return_value=test_main_app.TEST_DATA_DIR)
-    try:
-        # execution
-        composable._run()
-        assert run_mock.called, 'should have been called'
-        args, kwargs = run_mock.call_args
-        test_storage = args[0]
-        assert isinstance(test_storage, SubaruName), type(test_storage)
-        assert test_storage.obs_id == test_obs_id, 'wrong obs id'
-        assert test_storage.file_name == test_f_name, 'wrong file name'
-    finally:
-        os.getcwd = getcwd_orig
-        _cleanup()
+    logging.info(
+        f'Completed cleanup augmentation for {observation.observation_id}. '
+        f'Remove {count} artifacts from the observation.'
+    )
 
-
-@patch('subaru2caom2.composable.Client', autospec=True)
-@patch('caom2pipe.client_composable.ClientCollection', autospec=True)
-@patch('caom2pipe.execute_composable.OrganizeExecutes.do_one', autospec=True)
-def test_run_remote(run_mock, clients_mock, vo_client_mock):
-    test_obs_id = 'SUPA0014258'
-    test_f_name = 'SUPA0014258p.weight.fits.fz'
-    vo_client_mock.return_value.listdir.return_value = [test_f_name]
-
-    node1 = type('', (), {})()
-    node1.props = {
-        'date': '2020-09-15 19:55:03.067000+00:00',
-        'size': 14,
-    }
-    node1.uri = f'vos://cadc.nrc.ca!vault/goliaths/moc/{test_f_name}'
-    node1.type = 'vos:DataNode'
-    node1.node_list = [node1]
-    vo_client_mock.return_value.get_node.return_value = node1
-
-    getcwd_orig = os.getcwd
-    os.getcwd = Mock(return_value=test_main_app.TEST_DATA_DIR)
-    try:
-        # execution
-        composable._run_remote()
-        assert run_mock.called, 'should have been called'
-        args, kwargs = run_mock.call_args
-        test_storage = args[1]
-        assert isinstance(test_storage, SubaruName), type(test_storage)
-        assert test_storage.obs_id == test_obs_id, 'wrong obs id'
-        assert test_storage.file_name == test_f_name, 'wrong file name'
-    finally:
-        os.getcwd = getcwd_orig
-        _cleanup()
-
-
-def _cleanup():
-    # clean up the files created as a by-product of a run
-    for f_name in [
-        'data_report.txt',
-        'failure_log.txt',
-        'rejected.yml',
-        'retries.txt',
-        'success_log.txt',
-    ]:
-        fqn = os.path.join(test_main_app.TEST_DATA_DIR, f_name)
-        if os.path.exists(fqn):
-            os.unlink(fqn)
+    return observation

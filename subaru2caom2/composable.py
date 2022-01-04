@@ -102,10 +102,13 @@ from caom2pipe import reader_composable as rdc
 from caom2pipe import run_composable as rc
 from subaru2caom2 import APPLICATION, SubaruName, transfer
 from subaru2caom2 import fits2caom2_augmentation, preview_augmentation
+from subaru2caom2 import cleanup_augmentation
 from vos import Client
 
 
-META_VISITORS = [fits2caom2_augmentation, preview_augmentation]
+META_VISITORS = [
+    fits2caom2_augmentation, preview_augmentation, cleanup_augmentation
+]
 DATA_VISITORS = []
 SCLA_BOOKMARK = 'scla_timestamp'
 
