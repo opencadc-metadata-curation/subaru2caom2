@@ -62,87 +62,39 @@
 #  <http://www.gnu.org/licenses/>.      pas le cas, consultez :
 #                                       <http://www.gnu.org/licenses/>.
 #
-#  $Revision: 4 $
+#  : 4 $
 #
 # ***********************************************************************
 #
 
-import os
+from caom2pipe import manage_composable as mc
+from subaru2caom2 import cleanup_augmentation
 import test_main_app
 
-from mock import Mock, patch
 
-from subaru2caom2 import composable, SubaruName, COLLECTION
+def test_visit():
+    # test that it works when it should
+    test_product_id = 'SUPA0155413'
+    test_obs = mc.read_obs_from_file(
+        f'{test_main_app.TEST_DATA_DIR}/{test_product_id}.xml',
+    )
+    assert len(test_obs.planes.values()) == 2, 'wrong plane count pc'
+    test_plane = test_obs.planes[test_product_id]
+    assert len(test_plane.artifacts.values()) == 3, 'wrong artifact count pc'
 
+    kwargs = {}
+    test_obs = cleanup_augmentation.visit(test_obs, **kwargs)
+    assert len(test_obs.planes.values()) == 1, 'post wrong plane count'
+    assert test_product_id not in test_obs.planes.keys(), 'wrong plane delete'
 
-def test_run_by_state():
-    pass
-
-
-@patch('caom2pipe.client_composable.ClientCollection')
-@patch('caom2pipe.execute_composable.OrganizeExecutes.do_one')
-def test_run(run_mock, clients_mock):
-    test_obs_id = 'SUPA0014258'
-    test_f_name = 'SUPA0014258p.weight.fits.fz'
-    getcwd_orig = os.getcwd
-    os.getcwd = Mock(return_value=test_main_app.TEST_DATA_DIR)
-    try:
-        # execution
-        composable._run()
-        assert run_mock.called, 'should have been called'
-        args, kwargs = run_mock.call_args
-        test_storage = args[0]
-        assert isinstance(test_storage, SubaruName), type(test_storage)
-        assert test_storage.obs_id == test_obs_id, 'wrong obs id'
-        assert test_storage.file_name == test_f_name, 'wrong file name'
-    finally:
-        os.getcwd = getcwd_orig
-        _cleanup()
-
-
-@patch('subaru2caom2.composable.Client', autospec=True)
-@patch('caom2pipe.client_composable.ClientCollection', autospec=True)
-@patch('caom2pipe.execute_composable.OrganizeExecutes.do_one', autospec=True)
-def test_run_remote(run_mock, clients_mock, vo_client_mock):
-    test_obs_id = 'SUPA0014258'
-    test_f_name = 'SUPA0014258p.weight.fits.fz'
-    vo_client_mock.return_value.listdir.return_value = [test_f_name]
-
-    node1 = type('', (), {})()
-    node1.props = {
-        'date': '2020-09-15 19:55:03.067000+00:00',
-        'size': 14,
-    }
-    node1.uri = f'vos://cadc.nrc.ca!vault/goliaths/moc/{test_f_name}'
-    node1.type = 'vos:DataNode'
-    node1.node_list = [node1]
-    vo_client_mock.return_value.get_node.return_value = node1
-
-    getcwd_orig = os.getcwd
-    os.getcwd = Mock(return_value=test_main_app.TEST_DATA_DIR)
-    try:
-        # execution
-        composable._run_remote()
-        assert run_mock.called, 'should have been called'
-        args, kwargs = run_mock.call_args
-        test_storage = args[1]
-        assert isinstance(test_storage, SubaruName), type(test_storage)
-        assert test_storage.obs_id == test_obs_id, 'wrong obs id'
-        assert test_storage.file_name == test_f_name, 'wrong file name'
-    finally:
-        os.getcwd = getcwd_orig
-        _cleanup()
-
-
-def _cleanup():
-    # clean up the files created as a by-product of a run
-    for f_name in [
-        'data_report.txt',
-        'failure_log.txt',
-        'rejected.yml',
-        'retries.txt',
-        'success_log.txt',
-    ]:
-        fqn = os.path.join(test_main_app.TEST_DATA_DIR, f_name)
-        if os.path.exists(fqn):
-            os.unlink(fqn)
+    # test that it does nothing when it shouldn't
+    for obs_id in ['SCLA.285.288', 'SUPA0017978']:
+        test_obs = mc.read_obs_from_file(
+            f'{test_main_app.TEST_DATA_DIR}/{obs_id}.expected.xml',
+        )
+        initial_count = len(test_obs.planes.values())
+        kwargs = {}
+        test_obs = cleanup_augmentation.visit(test_obs, **kwargs)
+        assert (
+            len(test_obs.planes.values()) == initial_count
+        ), 'post wrong plane count should do nothing'
