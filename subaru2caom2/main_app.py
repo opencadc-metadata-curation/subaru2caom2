@@ -428,8 +428,7 @@ class Telescope:
         # chunk
         bp.set('Chunk.metaProducer', meta_producer)
 
-        bp.clear('Chunk.position.resolution')
-        bp.add_fits_attribute('Chunk.position.resolution', 'IQFINAL')
+        bp.set('Chunk.position.resolution', '_get_position_resolution()')
 
         bp.set('Chunk.time.axis.axis.ctype', 'TIME')
         bp.set('Chunk.time.axis.axis.cunit', 'd')
@@ -527,6 +526,11 @@ class Telescope:
             cc.update_observation_members(observation)
         self._logger.debug('Done update.')
         return observation
+
+    def _get_position_resolution(self, ext):
+        # 04-01-22 - SGw
+        # it is ok if IQFINAL is an empty string
+        return mc.to_float(self._headers[ext].get('IQFINAL'))
 
     def _get_time_function_val(self, ext):
         date_obs = self._headers[ext].get('DATE-OBS')
