@@ -131,7 +131,7 @@ def _run():
         source_transfer = transfer.VoTransferCheck(
             vo_client, clients.data_client
         )
-        reader = rdc.VaultRead(vo_client)
+        reader = rdc.VaultReader(vo_client)
     name_builder = nbc.GuessingBuilder(SubaruName)
     return rc.run_by_todo(
         name_builder=name_builder,
