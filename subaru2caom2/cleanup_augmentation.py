@@ -92,7 +92,7 @@ def visit(observation, **kwargs):
 
     logging.info(
         f'Completed cleanup augmentation for {observation.observation_id}. '
-        f'Remove {count} artifacts from the observation.'
+        f'Remove {count} planes from the observation.'
     )
 
     return observation
