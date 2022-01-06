@@ -67,16 +67,18 @@
 # ***********************************************************************
 #
 
+import logging
 import os
 import test_main_app
 
-from mock import Mock, patch
+from collections import deque
+from datetime import datetime, timedelta, timezone
+from tempfile import TemporaryDirectory
+from mock import ANY, Mock, patch
 
-from subaru2caom2 import composable, SubaruName, COLLECTION
-
-
-def test_run_by_state():
-    pass
+from caom2pipe import data_source_composable as dsc
+from caom2pipe import manage_composable as mc
+from subaru2caom2 import composable, SubaruName, SCLA_BOOKMARK
 
 
 @patch('caom2pipe.client_composable.ClientCollection')
@@ -132,6 +134,105 @@ def test_run_remote(run_mock, clients_mock, vo_client_mock):
     finally:
         os.getcwd = getcwd_orig
         _cleanup()
+
+
+@patch('subaru2caom2.composable.Client')
+@patch('subaru2caom2.preview_augmentation.visit')
+@patch('subaru2caom2.transfer.VoTransferCheck')
+@patch('caom2pipe.data_source_composable.VaultDataSource.get_time_box_work')
+@patch('caom2pipe.client_composable.CAOM2RepoClient')
+@patch('caom2pipe.client_composable.StorageClientWrapper')
+def test_run_store_ingest(
+        data_client_mock,
+        repo_client_mock,
+        data_source_mock,
+        transferrer_mock,
+        visit_mock,
+        vo_mock,
+):
+    an_hour_ago = datetime.now(tz=timezone.utc) - timedelta(hours=1)
+    m_time = an_hour_ago + timedelta(minutes=10)
+    temp_deque = deque()
+    dir_entry = dsc.StateRunnerMeta(
+        'vos:goliaths/test/SUPA0017978p.fits.fz', m_time.timestamp()
+    )
+    temp_deque.append(dir_entry)
+    data_source_mock.side_effect = [temp_deque, deque()]
+    repo_client_mock.return_value.read.return_value = None
+
+    def _visit_mock(
+        obs,
+        working_directory=None,
+        cadc_client=None,
+        caom_repo_client=None,
+        stream=None,
+        storage_name=None,
+        metadata_reader=None,
+        observable=None,
+    ):
+        return obs
+    visit_mock.side_effect = _visit_mock
+
+    cwd = os.getcwd()
+    with TemporaryDirectory() as tmp_dir_name:
+        os.chdir(tmp_dir_name)
+        test_config = mc.Config()
+        test_config.working_directory = tmp_dir_name
+        test_config.task_types = [mc.TaskType.STORE, mc.TaskType.INGEST]
+        test_config.data_sources = ['vos:goliaths/test']
+        test_config.data_source_extensions = ['.fits.fz']
+        test_config.logging_level = 'INFO'
+        test_config.proxy_file_name = 'cadcproxy.pem'
+        test_config.proxy_fqn = f'{tmp_dir_name}/cadcproxy.pem'
+        test_config.state_file_name = 'state.yml'
+        test_config.state_fqn = f'{tmp_dir_name}/state.yml'
+        test_config.interval = 100
+        test_config.features.supports_latest_client = True
+        mc.Config.write_to_file(test_config)
+        with open(test_config.proxy_fqn, 'w') as f:
+            f.write('test content')
+        with open(test_config.state_fqn, 'w') as f:
+            f.write(
+                f'bookmarks:\n  {SCLA_BOOKMARK}:\n'
+                f'    last_record: {an_hour_ago}\n'
+            )
+        getcwd_orig = os.getcwd
+        os.getcwd = Mock(return_value=tmp_dir_name)
+        try:
+            test_result = composable._run_state()
+            assert test_result is not None, 'expect result'
+            assert test_result == 0, 'expect success'
+            assert transferrer_mock.return_value.get.called, 'get not called'
+            transferrer_mock.return_value.get.assert_called_with(
+                'vos:goliaths/test/SUPA0017978p.fits.fz',
+                f'{tmp_dir_name}/SUPA0017978/SUPA0017978p.fits.fz',
+            ), 'wrong args'
+            assert repo_client_mock.return_value.read.called, 'read called'
+            # make sure data is not being written to CADC storage :)
+            assert (
+                data_client_mock.return_value.put.called
+            ), 'put should be called'
+            assert (
+                    data_client_mock.return_value.put.call_count == 1
+            ), 'wrong number of puts'
+            data_client_mock.return_value.put.assert_called_with(
+                f'{tmp_dir_name}/SUPA0017978',
+                'cadc:SUBARUCADC/SUPA0017978p.fits.fz',
+                None,
+            )
+            assert vo_mock.return_value.copy.called, 'copy'
+            vo_mock.return_value.copy.assert_called_with(
+                'vos:goliaths/test/SUPA0017978p.fits.fz', ANY, head=True
+            ), 'wrong copy parameters'
+            assert vo_mock.return_value.get_node.called, 'get_node'
+            vo_mock.return_value.get_node.assert_called_with(
+                'vos:goliaths/test/SUPA0017978p.fits.fz',
+                limit=None,
+                force=False,
+            ), 'wrong get_node parameters'
+        finally:
+            os.getcwd = getcwd_orig
+            os.chdir(cwd)
 
 
 def _cleanup():

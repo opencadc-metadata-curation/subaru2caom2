@@ -100,7 +100,7 @@ from caom2pipe import manage_composable as mc
 from caom2pipe import name_builder_composable as nbc
 from caom2pipe import reader_composable as rdc
 from caom2pipe import run_composable as rc
-from subaru2caom2 import APPLICATION, SubaruName, transfer
+from subaru2caom2 import SubaruName, transfer
 from subaru2caom2 import fits2caom2_augmentation, preview_augmentation
 from subaru2caom2 import cleanup_augmentation
 from vos import Client
@@ -124,12 +124,14 @@ def _run():
     config.get_executors()
     clients = None
     source_transfer = None
+    reader = None
     if mc.TaskType.STORE in config.task_types:
         vo_client = Client(vospace_certfile=config.proxy_fqn)
         clients = clc.ClientCollection(config)
         source_transfer = transfer.VoTransferCheck(
             vo_client, clients.data_client
         )
+        reader = rdc.VaultRead(vo_client)
     name_builder = nbc.GuessingBuilder(SubaruName)
     return rc.run_by_todo(
         name_builder=name_builder,
@@ -137,6 +139,7 @@ def _run():
         data_visitors=DATA_VISITORS,
         store_transfer=source_transfer,
         clients=clients,
+        metadata_reader=reader,
     )
 
 
@@ -210,16 +213,18 @@ def _run_state():
         'end_timestamp', datetime.now()
     )
     end_timestamp_dt = mc.make_time_tz(end_timestamp_s)
+    reader = rdc.VaultReader(source_client)
     return rc.run_by_state(
+        config=config,
         name_builder=builder,
-        command_name=APPLICATION,
         bookmark_name=SCLA_BOOKMARK,
         meta_visitors=META_VISITORS,
         data_visitors=DATA_VISITORS,
         end_time=end_timestamp_dt,
         source=data_source,
-        source_transfer=source_transfer,
+        store_transfer=source_transfer,
         clients=clients,
+        metadata_reader=reader,
     )
 
 
