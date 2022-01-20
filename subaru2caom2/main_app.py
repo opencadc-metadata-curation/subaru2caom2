@@ -417,11 +417,11 @@ class Telescope:
         # artifact
         bp.set('Artifact.metaProducer', meta_producer)
         artifact_product_type = ProductType.SCIENCE
-        if storage_name.is_legacy:
-            if '.weight' in storage_name.file_uri:
-                artifact_product_type = ProductType.WEIGHT
-            elif '.cat' in storage_name.file_uri:
-                artifact_product_type = ProductType.AUXILIARY
+        # SGw 19-01-22 - weight product type for all weight files
+        if '.weight' in storage_name.file_uri:
+            artifact_product_type = ProductType.WEIGHT
+        elif '.cat' in storage_name.file_uri:
+            artifact_product_type = ProductType.AUXILIARY
         bp.set('Artifact.productType', artifact_product_type)
         bp.set('Artifact.releaseType', 'data')
 
