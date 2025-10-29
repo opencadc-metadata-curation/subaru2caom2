@@ -25,7 +25,7 @@ ARG CAOM2_REPO=opencadc
 ARG OPENCADC_BRANCH=master
 ARG OPENCADC_REPO=opencadc-metadata-curation
 ARG PIPE_BRANCH=master
-ARG PIPE_REPO=opencadc
+ARG PIPE_REPO=opencadc-metadata-curation
 ARG VOS_BRANCH=master
 ARG VOS_REPO=opencadc
 
